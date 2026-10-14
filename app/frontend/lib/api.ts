@@ -1,5 +1,14 @@
+/** The deployed API. Hardcoded so Vercel needs no environment variable — anything
+ *  NEXT_PUBLIC_* has to be inlined at build time anyway, and getting the name wrong
+ *  silently falls back to a host that is not there.
+ *
+ *  To run against a local backend, set NEXT_PUBLIC_BACKEND_URL in app/frontend/.env
+ *  (that file is gitignored and never reaches Vercel). */
+const DEPLOYED_API = "https://multimodal-ai-hackathon-2026-lucify-production.up.railway.app";
+
+// An override that is present but blank would otherwise produce a relative "" base.
 export const API_BASE =
-  process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
+  (process.env.NEXT_PUBLIC_BACKEND_URL || "").trim().replace(/\/+$/, "") || DEPLOYED_API;
 
 const KEY_STORAGE = "companion.accessKey";
 
