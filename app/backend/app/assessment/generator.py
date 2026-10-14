@@ -24,7 +24,7 @@ from app.db.models import (
     UnitTopic,
 )
 from app.assessment.novelty import NoveltyFilter, fingerprint
-from app.assessment.verifier import verify_question
+from app.assessment.verifier import verify_batch
 from app.learner import irt, profile
 from app.llm.groq_client import GroqError, get_client
 from app.retrieval.embedder import get_embedder
@@ -43,6 +43,7 @@ QUESTION_SCHEMA = {
             "items": {
                 "type": "object",
                 "properties": {
+                    "target": {"type": "string"},
                     "qtype": {"type": "string", "enum": ["mcq", "short_answer", "numerical"]},
                     "stem": {"type": "string"},
                     "options": {"type": "array", "items": {"type": "string"}},
@@ -55,6 +56,7 @@ QUESTION_SCHEMA = {
                     "answer_units": {"type": "string"},
                 },
                 "required": [
+                    "target",
                     "qtype",
                     "stem",
                     "options",
@@ -88,7 +90,22 @@ Rules:
 - Test understanding, not recall of incidental detail. These are forbidden: the name or signature of a helper function in a code sample, how many items a particular dataset split contains, an author's rhetorical aside, a figure's caption wording, notation a single source happens to use.
 - A good question asks why something works, what would happen if a quantity changed, how two ideas relate, or makes the student apply a method. Prefer "what happens to the gradient if the learning rate is too large" over "what value of eta is used in the example".
 - Set tolerance to 0 for non-numerical questions and answer_units to an empty string.
+- Each request lists one or more targets, each with an id like T1, how many questions it wants and at what difficulty. Put that id in "target" and honour the per-target counts.
 - Write questions a student could answer without seeing the excerpts, using only knowledge of the subject."""
+
+
+@dataclass
+class TopicPlan:
+    """One target for a generation call: a topic (or the whole course), how many
+    questions it should contribute, and the difficulty chosen for it."""
+
+    topic: "Topic | None"
+    count: int
+    difficulty: str
+
+    @property
+    def label(self) -> str:
+        return self.topic.name if self.topic is not None else "the course material as a whole"
 
 
 @dataclass
@@ -197,21 +214,78 @@ def generate_for_topic(
     verify: bool,
     stats: GenerationStats,
 ) -> list[Question]:
-    units = _units_for_topic(session, course_id, topic.id if topic else None, source_ids, MAX_UNITS_PER_BATCH)
-    if not units:
+    """One target. Kept for the top-up path, which asks for whatever a quiz is short."""
+    return generate_for_plan(
+        session,
+        course_id,
+        [TopicPlan(topic=topic, count=count, difficulty=difficulty)],
+        qtypes=qtypes,
+        source_ids=source_ids,
+        novelty=novelty,
+        verify=verify,
+        stats=stats,
+    )
+
+
+def generate_for_plan(
+    session: Session,
+    course_id: uuid.UUID,
+    plan: list[TopicPlan],
+    *,
+    qtypes: list[str],
+    source_ids: list[uuid.UUID] | None,
+    novelty: NoveltyFilter,
+    verify: bool,
+    stats: GenerationStats,
+) -> list[Question]:
+    """Every target in one call.
+
+    A quiz used to cost one generation call per topic, each carrying its own copy of
+    the system prompt and its own excerpts, and each booking its own reservation
+    against an 8,000 token minute. Three topics therefore spilled across minute
+    windows before a single question came back. The excerpts for the targets overlap
+    anyway, so sending them once is both cheaper and gives the model a wider view.
+    """
+    plan = [item for item in plan if item.count > 0]
+    if not plan:
+        return []
+
+    units: list[ContentUnit] = []
+    seen_units: set[uuid.UUID] = set()
+    targets: list[tuple[str, TopicPlan]] = []
+    for index, item in enumerate(plan, start=1):
+        found = _units_for_topic(
+            session, course_id, item.topic.id if item.topic else None, source_ids, MAX_UNITS_PER_BATCH
+        )
+        if not found:
+            continue
+        targets.append((f"T{index}", item))
+        for unit in found:
+            if unit.id not in seen_units:
+                seen_units.add(unit.id)
+                units.append(unit)
+
+    if not units or not targets:
         return []
 
     context, mapping = _context_block(session, units)
     embedder = get_embedder()
     client = get_client()
 
-    topic_line = f"Target topic: {topic.name}" if topic else "Target: the course material as a whole"
+    topic_by_target = {key: item.topic for key, item in targets}
+    wanted = sum(item.count for _key, item in targets)
+    target_lines = "\n".join(
+        f"  {key}: {item.label} - {item.count} question(s) at {item.difficulty} difficulty"
+        for key, item in targets
+    )
     request = (
         f"SOURCE EXCERPTS:\n{context}\n\n"
-        f"{topic_line}\n"
-        f"Write {count + 2} questions at {difficulty} difficulty.\n"
+        f"TARGETS:\n{target_lines}\n\n"
+        f"Write {wanted + 2} questions in total, honouring each target's count, and put the "
+        f"target id in the \"target\" field of every question.\n"
         f"Allowed question types: {', '.join(qtypes)}. Spread them across the allowed types."
     )
+    count = wanted
 
     try:
         payload = client.complete_json(
@@ -227,12 +301,19 @@ def generate_for_topic(
             task="question_generation",
         )
     except GroqError:
-        logger.exception("Question generation failed for topic %s", topic.name if topic else "course")
+        logger.exception(
+            "Question generation failed for %s", ", ".join(item.label for _key, item in targets)
+        )
         return []
 
-    produced: list[Question] = []
+    # Two phases. Everything that can reject a candidate for free -- schema, option
+    # count, novelty -- runs first, so the verifier is only asked about questions that
+    # could still survive, and is asked about all of them at once.
+    # The model is asked for count + 2, and the spare two are what absorb a
+    # verification failure without leaving the quiz short.
+    candidates: list[dict] = []
     for entry in payload.get("questions", []):
-        if len(produced) >= count:
+        if len(candidates) >= count + 2:
             break
 
         stem = (entry.get("stem") or "").strip()
@@ -257,26 +338,69 @@ def generate_for_topic(
         markers = [marker for marker in entry.get("source_markers", []) if marker in mapping]
         cited_units = [mapping[marker] for marker in markers] or units[:2]
 
-        if verify:
-            result = verify_question(
-                {
-                    "qtype": qtype.value,
-                    "stem": stem,
-                    "options": options,
-                    "answer_key": answer,
-                    "answer_explanation": entry.get("explanation"),
-                },
-                _context_for_units(session, cited_units),
-            )
-            if not result.passed and result.error is None:
-                stats.rejected_verification += 1
-                stats.verification_issues.extend(result.issues[:2])
-                continue
-            verification = result.as_dict()
-        else:
-            verification = {"passed": False, "skipped": True}
+        candidates.append(
+            {
+                "entry": entry,
+                "qtype": qtype,
+                "stem": stem,
+                "answer": answer,
+                "options": options,
+                "vector": vector,
+                "cited_units": cited_units,
+                "target": str(entry.get("target") or "").strip().upper(),
+            }
+        )
 
-        resolved_topic_id = topic.id if topic is not None else _infer_topic_id(session, cited_units)
+    if not candidates:
+        return []
+
+    if verify:
+        verdicts = verify_batch(
+            [
+                {
+                    "qtype": candidate["qtype"].value,
+                    "stem": candidate["stem"],
+                    "options": candidate["options"],
+                    "answer_key": candidate["answer"],
+                    "answer_explanation": candidate["entry"].get("explanation"),
+                }
+                for candidate in candidates
+            ],
+            context,
+        )
+    else:
+        verdicts = [None] * len(candidates)
+
+    produced: list[Question] = []
+    for candidate, result in zip(candidates, verdicts):
+        if len(produced) >= count:
+            break
+        entry = candidate["entry"]
+        qtype = candidate["qtype"]
+        stem = candidate["stem"]
+        answer = candidate["answer"]
+        options = candidate["options"]
+        vector = candidate["vector"]
+        cited_units = candidate["cited_units"]
+
+        is_still_novel, _similarity = novelty.check(stem, answer, vector)
+        if not is_still_novel:
+            stats.rejected_duplicate += 1
+            continue
+
+        if result is None:
+            verification = {"passed": False, "skipped": True}
+        elif not result.passed and result.error is None:
+            stats.rejected_verification += 1
+            stats.verification_issues.extend(result.issues[:2])
+            continue
+        else:
+            verification = result.as_dict()
+
+        target_topic = topic_by_target.get(candidate["target"])
+        resolved_topic_id = (
+            target_topic.id if target_topic is not None else _infer_topic_id(session, cited_units)
+        )
 
         difficulty_label = _difficulty_enum(entry.get("difficulty"))
         concept_name = (entry.get("concept") or "").strip()
@@ -311,6 +435,9 @@ def generate_for_topic(
             embedding=vector,
         )
         session.add(question)
+        # Only a question that survived verification enters the novelty filter. Telling
+        # the filter about a candidate before the verdict would let a rejected question
+        # block its own replacement, and every later batch's.
         novelty.accept(stem, answer, vector)
         produced.append(question)
         stats.generated += 1
@@ -341,11 +468,6 @@ def _infer_topic_id(session: Session, units: list[ContentUnit]) -> uuid.UUID | N
         .limit(1)
     ).first()
     return fallback[0] if fallback is not None else None
-
-
-def _context_for_units(session: Session, units: list[ContentUnit]) -> str:
-    context, _ = _context_block(session, units)
-    return context
 
 
 def select_target_topics(
@@ -438,14 +560,16 @@ def create_assessment(
     session.flush()
 
     targets: list[Topic | None] = list(topics) or [None]
-    per_topic = max(1, -(-num_questions // len(targets)))
-    collected: list[Question] = []
 
-    for topic in targets:
-        if len(collected) >= num_questions:
+    # Spread the questions over the chosen topics, then ask for all of them at once.
+    # Difficulty is still decided per topic from that topic's own mastery estimate --
+    # the batching changes how many calls it takes, not what is asked for.
+    plan: list[TopicPlan] = []
+    remaining = num_questions
+    for position, topic in enumerate(targets):
+        if remaining <= 0:
             break
-        want = min(per_topic, num_questions - len(collected))
-
+        share = -(-remaining // (len(targets) - position))
         if difficulty:
             target_difficulty = difficulty
         elif topic is not None and kind is not AssessmentKind.diagnostic:
@@ -453,22 +577,25 @@ def create_assessment(
             target_difficulty = irt.target_difficulty(mastery.theta)
         else:
             target_difficulty = "medium"
+        plan.append(TopicPlan(topic=topic, count=share, difficulty=target_difficulty))
+        remaining -= share
 
-        produced = generate_for_topic(
-            session,
-            course_id,
-            topic,
-            count=want,
-            qtypes=qtypes,
-            difficulty=target_difficulty,
-            source_ids=source_ids,
-            novelty=novelty,
-            verify=verify,
-            stats=stats,
-        )
-        collected.extend(produced)
-        if topic is not None and produced:
-            stats.topics_covered.append(topic.name)
+    collected: list[Question] = generate_for_plan(
+        session,
+        course_id,
+        plan,
+        qtypes=qtypes,
+        source_ids=source_ids,
+        novelty=novelty,
+        verify=verify,
+        stats=stats,
+    )
+    covered = {
+        question.topic_id for question in collected if question.topic_id is not None
+    }
+    stats.topics_covered.extend(
+        topic.name for topic in targets if topic is not None and topic.id in covered
+    )
 
     if len(collected) < num_questions:
         collected.extend(
