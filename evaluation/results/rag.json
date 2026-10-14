@@ -1,0 +1,263 @@
+{
+  "metrics": {
+    "source_hit_rate": 0.75,
+    "mean_reciprocal_rank": 0.75,
+    "source_precision_at_k": 0.5,
+    "source_recall": 0.75,
+    "answerable_cases": 8,
+    "off_material_cases": 4,
+    "correct_refusal_rate": 1.0,
+    "false_refusal_rate": 0.0,
+    "refusal_f1": 1.0,
+    "latency_median_ms": 58456,
+    "latency_p90_ms": 60134,
+    "latency_max_ms": 61112,
+    "total_cases": 12,
+    "faithfulness": 0.6531,
+    "answer_relevancy": 0.9098,
+    "llm_context_precision_with_reference": 0.6875,
+    "context_recall": 0.625
+  },
+  "cases": [
+    {
+      "question": "What output would a perceptron have if it had no inputs?",
+      "expected_behavior": "answerable",
+      "reference_answer": "If a perceptron had no inputs, its weighted sum would always be zero, so it would output 1 when the bias b\u202f>\u202f0 and 0 when b\u202f\u2264\u202f0, i.e., a fixed value independent of any input.",
+      "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 14",
+      "modality": "text",
+      "answer": "If a perceptron had no inputs, its weighted sum \\(\\sum_j w_j x_j\\) would always be zero, so its output would depend only on the bias. It would output **1** when the bias \\(b > 0\\) and **0** when \\(b \\le 0\\) [1].",
+      "grounding_status": "grounded",
+      "coverage": 0.8299962979557352,
+      "refused": false,
+      "retrieved_ground_truth": true,
+      "retrieved": [
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 Page 14"
+      ],
+      "latency_ms": 22239,
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.9679,
+        "llm_context_precision_with_reference": 1.0,
+        "context_recall": 1.0
+      }
+    },
+    {
+      "question": "Why are activation functions important in neural networks according to the slide?",
+      "expected_behavior": "answerable",
+      "reference_answer": "Activation functions are important because they introduce non-linearities into the network, allowing it to approximate arbitrarily complex functions, whereas linear activation functions only produce linear decision boundaries regardless of network size.",
+      "ground_truth_locator": "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 24",
+      "modality": "figure",
+      "answer": "Activation functions are important because they introduce non\u2011linearities into a neural network. Without non\u2011linear activation functions, a network\u2014no matter how many layers or neurons it has\u2014can only produce linear decision boundaries, which limits its ability to separate complex, intermingled data patterns. By adding non\u2011linearities, the network can approximate arbitrarily complex functions and create the wavy, non\u2011linear classification boundaries needed for tasks like distinguishing intertwined red and green points.",
+      "grounding_status": "grounded",
+      "coverage": 0.8535280482032317,
+      "refused": false,
+      "retrieved_ground_truth": true,
+      "retrieved": [
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning Slide 24",
+        "MIT 6.S191 Lecture 1 recording 16:33"
+      ],
+      "latency_ms": 58456,
+      "scores": {
+        "faithfulness": 0.875,
+        "answer_relevancy": 0.9472,
+        "llm_context_precision_with_reference": 1.0,
+        "context_recall": 1.0
+      }
+    },
+    {
+      "question": "What does the symbol \u03c1C represent in the context of the given equations?",
+      "expected_behavior": "answerable",
+      "reference_answer": "\u03c1C is the gradient vector that relates changes in the variable v to changes in the function C; it can be thought of as a single vector defined in the notation.",
+      "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 26",
+      "modality": "text",
+      "answer": "In the equations, \\(\\rho_C\\) denotes the **gradient vector of the cost function \\(C\\)** with respect to the parameters \\(v\\). It is defined as the vector of partial derivatives \\(\\left[\\frac{\\partial C}{\\partial v_1},\\frac{\\partial C}{\\partial v_2},\\dots\\right]^T\\). Thinking of \\(\\rho_C\\) as a single mathematical object signals that it is the gradient, which tells how changes in the parameters \\(v\\) affect the cost \\(C\\) and guides the choice of parameter updates to decrease \\(C\\) [2][1].",
+      "grounding_status": "grounded",
+      "coverage": 0.8220847355076842,
+      "refused": false,
+      "retrieved_ground_truth": true,
+      "retrieved": [
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 Page 26",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 Page 26"
+      ],
+      "latency_ms": 60134,
+      "scores": {
+        "faithfulness": 0.8,
+        "answer_relevancy": 0.8737,
+        "llm_context_precision_with_reference": 1.0,
+        "context_recall": 1.0
+      }
+    },
+    {
+      "question": "How many neurons are in the input layer of the neural network used for recognizing individual handwritten digits, and why?",
+      "expected_behavior": "answerable",
+      "reference_answer": "The input layer contains 784 neurons because each input image is 28 by 28 pixels, giving 28\u202f\u00d7\u202f28\u202f=\u202f784 input pixel values.",
+      "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 21",
+      "modality": "text",
+      "answer": "The input layer contains **784 neurons** \u2013 one for each pixel of the 28\u202f\u00d7\u202f28\u2011pixel image that represents a handwritten digit. This design is used because the network receives the raw pixel values as its inputs, so each of the 784 pixel intensities is fed into its own input neuron\u30101\u2020L1-L4\u3011\u30102\u2020L1-L3\u3011.",
+      "grounding_status": "grounded",
+      "coverage": 0.8653790950775146,
+      "refused": false,
+      "retrieved_ground_truth": true,
+      "retrieved": [
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 Page 21",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 Page 21"
+      ],
+      "latency_ms": 61112,
+      "scores": {
+        "faithfulness": 0.75,
+        "answer_relevancy": 0.91,
+        "llm_context_precision_with_reference": 0.5,
+        "context_recall": 1.0
+      }
+    },
+    {
+      "question": "What type of machine\u2011learning problem is Mean Squared Error loss used for, and how is it computed in TensorFlow?",
+      "expected_behavior": "answerable",
+      "reference_answer": "MSE loss is used for regression models that output continuous real numbers. It is computed as the average of the squared differences between the actual values y and the predicted values, e.g., in TensorFlow with `loss = tf.reduce_mean(tf.square(tf.subtract(y, predicted)))` or `loss = tf.keras.losses.MSE(y, predicted)`.",
+      "ground_truth_locator": "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 49",
+      "modality": "figure",
+      "answer": "Mean Squared Error (MSE) loss is used for **regression** problems, where the model predicts continuous real\u2011valued outputs. In TensorFlow it can be computed either by manually squaring the difference between the true labels `y` and the predictions and then taking the mean, e.g., `loss = tf.reduce_mean(tf.square(tf.subtract(y, predicted)))`, or by using the built\u2011in loss function `tf.keras.losses.MSE(y, predicted)`\u30101\u2020L1-L4\u3011.",
+      "grounding_status": "grounded",
+      "coverage": 0.835877820621933,
+      "refused": false,
+      "retrieved_ground_truth": true,
+      "retrieved": [
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning Slide 49"
+      ],
+      "latency_ms": 56607,
+      "scores": {
+        "faithfulness": 0.0,
+        "answer_relevancy": 0.9203,
+        "llm_context_precision_with_reference": 1.0,
+        "context_recall": 0.0
+      }
+    },
+    {
+      "question": "What equation describes how a perceptron computes its output \u0177 during forward propagation, and how can it be expressed using vector notation?",
+      "expected_behavior": "answerable",
+      "reference_answer": "The perceptron output is given by \u0177 = g( w\u2080 + \u03a3\u1d62\u208c\u2081\u1d50 x\u1d62 w\u1d62 ), which can also be written in vector form as \u0177 = g( w\u2080 + X\u1d40W ), where X = [x\u2081; \u2026; x\u2098] and W = [w\u2081; \u2026; w\u2098].",
+      "ground_truth_locator": "MIT 6.S191 Lecture 1 recording \u2014 14:15",
+      "modality": "figure",
+      "answer": "A perceptron computes its output by first forming a linear combination of its inputs and weights (adding a bias term) and then applying a non\u2011linear activation function \\(g\\). In scalar form this is written as\n\\[ \\hat{y}=g\\bigl(w_{0}+\\sum_{i=1}^{m} x_{i}w_{i}\\bigr) \\]\nwhere \\(x_i\\) are the input features, \\(w_i\\) the corresponding weights, and \\(w_{0}\\) the bias [[2\u2020L1-L4]].\n\nUsing vector notation the same operation can be expressed compactly as\n\\[ \\hat{y}=g\\bigl(w_{0}+X^{\\top}W\\bigr) \\]\nwhere \\(X=[x_{1},\\dots,x_{m}]^{\\top}\\) is the input column vector and \\(W=[w_{1},\\dots,w_{m}]^{\\top}\\) is the weight column vector [[2\u2020L1-L3],[7\u2020L1-L4]].\n\nThus the forward\u2011propagation equation for a perceptron is the activation of the bias\u2011augmented dot product of inputs and weights.",
+      "grounding_status": "grounded",
+      "coverage": 0.834348653723343,
+      "refused": false,
+      "retrieved_ground_truth": true,
+      "retrieved": [
+        "MIT 6.S191 Lecture 1 recording 14:15",
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning Slide 30"
+      ],
+      "latency_ms": 59625,
+      "scores": {
+        "faithfulness": 0.8,
+        "answer_relevancy": 0.8386,
+        "llm_context_precision_with_reference": 1.0,
+        "context_recall": 1.0
+      }
+    },
+    {
+      "question": "What is the main focus of the book and what will readers be able to do after completing it?",
+      "expected_behavior": "answerable",
+      "reference_answer": "The book aims to help readers master the core concepts of neural networks, including modern deep learning techniques, so that after working through it they will have written code using neural networks and deep learning to solve complex pattern recognition problems and have a foundation to apply these methods to their own problems.",
+      "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 5",
+      "modality": "text",
+      "answer": "The book\u2019s main focus is to build a solid understanding of the fundamental ideas behind neural networks by combining principle\u2011oriented explanations with hands\u2011on, code\u2011driven learning. It emphasizes developing \"living code\" rather than only abstract theory so that readers can explore and extend implementations. After completing the book, readers will have grasped the fundamentals of neural networks both in theory and in practice and will be prepared to further expand their knowledge and build more advanced models.",
+      "grounding_status": "grounded",
+      "coverage": 0.5909851437219902,
+      "refused": false,
+      "retrieved_ground_truth": false,
+      "retrieved": [
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 Page 6"
+      ],
+      "latency_ms": 1773,
+      "scores": {
+        "faithfulness": 0.0,
+        "answer_relevancy": 0.8733,
+        "llm_context_precision_with_reference": 0.0,
+        "context_recall": 0.0
+      }
+    },
+    {
+      "question": "What is the title text displayed on the slide described in the excerpt?",
+      "expected_behavior": "answerable",
+      "reference_answer": "The title text reads \"Why Deep Learning and Why Now?\" in white font against a solid blue background.",
+      "ground_truth_locator": "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 13",
+      "modality": "figure",
+      "answer": "The title text displayed on the slide is \"The Perceptron: Example.\"",
+      "grounding_status": "grounded",
+      "coverage": 0.7080641736907802,
+      "refused": false,
+      "retrieved_ground_truth": false,
+      "retrieved": [
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning Slide 27"
+      ],
+      "latency_ms": 1041,
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.9471,
+        "llm_context_precision_with_reference": 0.0,
+        "context_recall": 0.0
+      }
+    },
+    {
+      "question": "Can you explain how the attention mechanism works in transformer models and how it differs from traditional feedforward networks?",
+      "expected_behavior": "off_material",
+      "reference_answer": null,
+      "ground_truth_locator": "",
+      "modality": "text",
+      "answer": "The provided course material does not contain any information about the attention mechanism in transformer models or how it differs from traditional feedforward networks. Therefore, I cannot explain these concepts based on the excerpts given.",
+      "grounding_status": "unsupported",
+      "coverage": 0.7717384372069315,
+      "refused": true,
+      "retrieved_ground_truth": false,
+      "retrieved": [],
+      "latency_ms": 59284,
+      "scores": {}
+    },
+    {
+      "question": "What are the best practices for hyperparameter optimization using Bayesian methods for deep neural networks?",
+      "expected_behavior": "off_material",
+      "reference_answer": null,
+      "ground_truth_locator": "",
+      "modality": "text",
+      "answer": "The provided course material does not contain information about best practices for hyperparameter optimization using Bayesian methods for deep neural networks.",
+      "grounding_status": "unsupported",
+      "coverage": 0.727829055319486,
+      "refused": true,
+      "retrieved_ground_truth": false,
+      "retrieved": [],
+      "latency_ms": 57998,
+      "scores": {}
+    },
+    {
+      "question": "How does reinforcement learning integrate with deep neural networks, and could you give an example of a policy gradient algorithm?",
+      "expected_behavior": "off_material",
+      "reference_answer": null,
+      "ground_truth_locator": "",
+      "modality": "text",
+      "answer": "The provided course material does not contain information about how reinforcement learning integrates with deep neural networks or about policy gradient algorithms, so I cannot explain these topics based on the excerpts given.",
+      "grounding_status": "unsupported",
+      "coverage": 0.7419763803482056,
+      "refused": true,
+      "retrieved_ground_truth": false,
+      "retrieved": [],
+      "latency_ms": 59415,
+      "scores": {}
+    },
+    {
+      "question": "Could you provide a detailed overview of generative adversarial networks (GANs) and how they are trained?",
+      "expected_behavior": "off_material",
+      "reference_answer": null,
+      "ground_truth_locator": "",
+      "modality": "text",
+      "answer": "The provided course material does not contain information about generative adversarial networks (GANs) or their training procedures, so I cannot give an overview based on the excerpts.",
+      "grounding_status": "unsupported",
+      "coverage": 0.7797964942576604,
+      "refused": true,
+      "retrieved_ground_truth": false,
+      "retrieved": [],
+      "latency_ms": 56860,
+      "scores": {}
+    }
+  ]
+}
