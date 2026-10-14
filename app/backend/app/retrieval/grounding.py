@@ -72,6 +72,7 @@ class GroundedAnswer:
     unsupported_claims: list[str] = field(default_factory=list)
     followups: list[str] = field(default_factory=list)
     coverage: float = 0.0
+    margin: float = 0.0
     retrieval: RetrievalResult | None = None
     topic_ids: list[uuid.UUID] = field(default_factory=list)
     usage_tokens: int = 0
@@ -146,11 +147,20 @@ def answer_question(
         source_ids=source_ids,
     )
 
-    if not retrieval.units or retrieval.best_score < settings.grounding_threshold:
+    # Two ways the evidence can be too thin to answer from. The absolute floor catches
+    # an empty or unrelated course; the margin catches the far more common case where
+    # everything retrieved is plausibly on-topic but nothing actually answers the
+    # question, which similarity alone cannot see.
+    if (
+        not retrieval.units
+        or retrieval.best_score < settings.grounding_threshold
+        or retrieval.margin < settings.grounding_margin
+    ):
         return GroundedAnswer(
             answer=REFUSAL_TEMPLATE,
             status=GroundingStatus.refused,
             coverage=retrieval.best_score,
+            margin=retrieval.margin,
             retrieval=retrieval,
         )
 
@@ -189,6 +199,7 @@ def answer_question(
             status=GroundingStatus.refused,
             citations=retrieval.citations(),
             coverage=retrieval.best_score,
+            margin=retrieval.margin,
             retrieval=retrieval,
         )
     except GroqError:
@@ -197,6 +208,7 @@ def answer_question(
             answer="The tutor is temporarily unavailable. Please try again in a moment.",
             status=GroundingStatus.refused,
             coverage=retrieval.best_score,
+            margin=retrieval.margin,
             retrieval=retrieval,
         )
 
@@ -224,6 +236,7 @@ def answer_question(
         unsupported_claims=[claim for claim in payload.get("unsupported_claims", []) if claim],
         followups=[item for item in payload.get("followups", []) if item][:3],
         coverage=retrieval.best_score,
+        margin=retrieval.margin,
         retrieval=retrieval,
         topic_ids=matched_topics,
         usage_tokens=completion.usage.total,

@@ -54,6 +54,9 @@ class TestCase:
     ground_truth_unit_ids: list[str] = field(default_factory=list)
     ground_truth_locator: str = ""
     modality: str = "text"
+    # Hand-authored sets carry a category so results can be broken down by query type
+    # (exact-title lookups fail for different reasons than multi-passage reasoning).
+    category: str = "unspecified"
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -88,7 +91,7 @@ def build(
     random.seed(seed)
 
     sources = {source["id"]: source["title"] for source in client.sources(course_id)}
-    units = client.units(course_id, limit=200)
+    units = client.all_units(course_id)
     usable = [unit for unit in units if unit.get("token_count", 0) >= min_tokens]
     if not usable:
         raise RuntimeError("No units long enough to build a test set from")

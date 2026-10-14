@@ -229,15 +229,21 @@ def main() -> None:
         def on_progress(index: int, total: int, question: str) -> None:
             print(f"  [{index + 1}/{total}] {question[:68]}")
 
+        # Unit text and metadata, so retrieval can be scored at page and slide level
+        # and the judge can see the context the generator actually had.
+        unit_lookup = {unit["id"]: unit for unit in client.all_units(course["id"])}
+        print(f"  {len(unit_lookup)} units loaded for scoring")
+
         print("\nAsking the app...")
         started = time.perf_counter()
         predictions = metric_module.collect(
-            client, course["id"], student["id"], cases, on_progress=on_progress
+            client, course["id"], student["id"], cases,
+            on_progress=on_progress, units=unit_lookup,
         )
         print(f"  {len(predictions)} answers in {(time.perf_counter() - started) / 60:.1f} min")
 
         rag_metrics: dict = {}
-        rag_metrics.update(metric_module.retrieval_metrics(predictions))
+        rag_metrics.update(metric_module.retrieval_metrics(predictions, unit_lookup))
         rag_metrics.update(metric_module.refusal_metrics(predictions))
         rag_metrics.update(metric_module.latency_metrics(predictions))
         rag_metrics["total_cases"] = len(predictions)
@@ -264,6 +270,10 @@ def main() -> None:
                     "coverage": p.answer.coverage,
                     "refused": p.answer.refused,
                     "retrieved_ground_truth": p.retrieved_ground_truth,
+                    "cited_ground_truth": p.cited_ground_truth,
+                    "margin": p.answer.margin,
+                    "category": p.case.category,
+                    "retrieved_context": p.answer.retrieved_labels,
                     "retrieved": [
                         f"{c.get('source_title')} {c.get('label')}" for c in p.answer.citations
                     ],

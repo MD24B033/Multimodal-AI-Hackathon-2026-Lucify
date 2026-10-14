@@ -1,0 +1,271 @@
+[
+  {
+    "question": "Why does the book say a network of perceptrons can carry out any computation at all?",
+    "expected_behavior": "answerable",
+    "reference_answer": "Because the NAND gate is universal for computation and any computation can be built out of NAND gates, and a NAND gate can be replaced by a perceptron with two inputs of weight -2 and an overall bias of 3.",
+    "ground_truth_unit_ids": [
+      "a53ba045-05e4-4585-919e-a300e420be4f"
+    ],
+    "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) — Chapters 1-2 — Page 13",
+    "modality": "text",
+    "category": "direct"
+  },
+  {
+    "question": "What weights and bias turn a perceptron into the equivalent of a NAND gate?",
+    "expected_behavior": "answerable",
+    "reference_answer": "Two inputs each with weight -2 and an overall bias of 3.",
+    "ground_truth_unit_ids": [
+      "a53ba045-05e4-4585-919e-a300e420be4f"
+    ],
+    "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) — Chapters 1-2 — Page 13",
+    "modality": "text",
+    "category": "structured"
+  },
+  {
+    "question": "What problem with perceptrons do sigmoid neurons fix?",
+    "expected_behavior": "answerable",
+    "reference_answer": "Sigmoid neurons are modified so that small changes in their weights and bias cause only a small change in their output, which is what allows a network to learn.",
+    "ground_truth_unit_ids": [
+      "7b3dc034-dc93-4233-a816-d0781e481f24"
+    ],
+    "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) — Chapters 1-2 — Page 15",
+    "modality": "text",
+    "category": "direct"
+  },
+  {
+    "question": "Which kind of artificial neuron accepts any value between 0 and 1 as an input rather than only 0 or 1?",
+    "expected_behavior": "answerable",
+    "reference_answer": "The sigmoid neuron: its inputs can take any value between 0 and 1, for instance 0.638.",
+    "ground_truth_unit_ids": [
+      "7b3dc034-dc93-4233-a816-d0781e481f24"
+    ],
+    "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) — Chapters 1-2 — Page 15",
+    "modality": "text",
+    "category": "paraphrase"
+  },
+  {
+    "question": "Why does the author concentrate on classifying individual digits instead of on segmentation?",
+    "expected_behavior": "answerable",
+    "reference_answer": "Because the segmentation problem is not so difficult to solve once you have a good way of classifying individual digits — trial segmentations can be scored with the individual digit classifier.",
+    "ground_truth_unit_ids": [
+      "91847c1c-e24f-4a43-91de-942604f7d89a"
+    ],
+    "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) — Chapters 1-2 — Page 21",
+    "modality": "text",
+    "category": "direct"
+  },
+  {
+    "question": "How are the weights and biases initialised in the Network class, and which layer gets no biases?",
+    "expected_behavior": "answerable",
+    "reference_answer": "They are initialised randomly from a Gaussian distribution with mean 0 and variance 1. The first layer is the input layer and gets no biases, since biases are only used in computing the outputs from later layers.",
+    "ground_truth_unit_ids": [
+      "a986c1ea-f708-4e2c-983c-156d24e327a9"
+    ],
+    "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) — Chapters 1-2 — Page 34",
+    "modality": "text",
+    "category": "structured"
+  },
+  {
+    "question": "How many fundamental equations is backpropagation built around?",
+    "expected_behavior": "answerable",
+    "reference_answer": "Four. Together they give a way of computing both the error delta^l and the gradient of the cost function.",
+    "ground_truth_unit_ids": [
+      "38e9d8f9-16a3-4be0-a6c6-8fd5ac3b9522"
+    ],
+    "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) — Chapters 1-2 — Page 52",
+    "modality": "text",
+    "category": "direct"
+  },
+  {
+    "question": "What is the point of an activation function in a neural network?",
+    "expected_behavior": "answerable",
+    "reference_answer": "To introduce a non-linearity into the system, so the network is not limited to what a single line can separate.",
+    "ground_truth_unit_ids": [
+      "9ed42a39-74f8-453b-84e3-5dc2f6522253"
+    ],
+    "ground_truth_locator": "MIT 6.S191 Lecture 1 recording — 15:48",
+    "modality": "transcript",
+    "category": "direct"
+  },
+  {
+    "question": "Which activation function is described as piecewise with a single nonlinearity at x equals zero?",
+    "expected_behavior": "answerable",
+    "reference_answer": "The ReLU function.",
+    "ground_truth_unit_ids": [
+      "9ed42a39-74f8-453b-84e3-5dc2f6522253"
+    ],
+    "ground_truth_locator": "MIT 6.S191 Lecture 1 recording — 15:48",
+    "modality": "transcript",
+    "category": "paraphrase"
+  },
+  {
+    "question": "Which regularisation technique sets a random half of the activations to zero on each training iteration?",
+    "expected_behavior": "answerable",
+    "reference_answer": "Dropout: on each iteration a random 50% of neurons have their activations set to zero, which stops the network relying too much on any one pathway.",
+    "ground_truth_unit_ids": [
+      "8580fbb1-7e26-45b7-8c6b-327623eb0079"
+    ],
+    "ground_truth_locator": "MIT 6.S191 Lecture 1 recording — 46:04",
+    "modality": "transcript",
+    "category": "direct"
+  },
+  {
+    "question": "Why is deep learning being studied now when the underlying algorithms are decades old?",
+    "expected_behavior": "answerable",
+    "reference_answer": "Because data has become far more prevalent, and because neural networks are massively parallelisable and have benefited from modern GPU architectures that did not exist when the algorithms were created.",
+    "ground_truth_unit_ids": [
+      "30a8f58d-4215-4165-bf69-17bbfdb29535"
+    ],
+    "ground_truth_locator": "MIT 6.S191 Lecture 1 recording — 11:22",
+    "modality": "transcript",
+    "category": "multi"
+  },
+  {
+    "question": "On the single-layer network diagram, how is the hidden unit z2 computed?",
+    "expected_behavior": "answerable",
+    "reference_answer": "As the sum of the weighted inputs plus a bias term w_{0,2}^{(1)}.",
+    "ground_truth_unit_ids": [
+      "44f94bbc-75a4-48d4-a0ab-b52cf55cca5e"
+    ],
+    "ground_truth_locator": "MIT 6.S191 Lecture 1 — Intro to Deep Learning — Slide 36",
+    "modality": "figure",
+    "category": "structured"
+  },
+  {
+    "question": "What other names does the course give for the empirical loss?",
+    "expected_behavior": "answerable",
+    "reference_answer": "Objective function, cost function, and empirical risk.",
+    "ground_truth_unit_ids": [
+      "c463fc85-69e6-4514-82d8-e231c89f0c10"
+    ],
+    "ground_truth_locator": "MIT 6.S191 Lecture 1 — Intro to Deep Learning — Slide 47",
+    "modality": "figure",
+    "category": "direct"
+  },
+  {
+    "question": "What is the exact title of the slide that introduces empirical loss?",
+    "expected_behavior": "answerable",
+    "reference_answer": "\"Empirical Loss\".",
+    "ground_truth_unit_ids": [
+      "c463fc85-69e6-4514-82d8-e231c89f0c10"
+    ],
+    "ground_truth_locator": "MIT 6.S191 Lecture 1 — Intro to Deep Learning — Slide 47",
+    "modality": "figure",
+    "category": "exact_title"
+  },
+  {
+    "question": "Which slide is titled \"The Perceptron: Example\"?",
+    "expected_behavior": "answerable",
+    "reference_answer": "Slide 27 of the MIT 6.S191 Lecture 1 deck, which shows a perceptron flowchart with the formula y-hat = g(1 + 3x1 - 2x2).",
+    "ground_truth_unit_ids": [
+      "ab7cff14-559b-43f4-b5c3-523d158ef449",
+      "ce4f0cad-7b58-4497-a5bc-e32967503e28"
+    ],
+    "ground_truth_locator": "MIT 6.S191 Lecture 1 — Intro to Deep Learning — Slide 27",
+    "modality": "figure",
+    "category": "exact_title"
+  },
+  {
+    "question": "Why does the book say you cannot simply eyeball a graph to minimise the cost function in general?",
+    "expected_behavior": "answerable",
+    "reference_answer": "Because eyeballing only works for the simple plotted function shown; in general the cost function has far more variables and cannot be read off a graph.",
+    "ground_truth_unit_ids": [
+      "a5f64459-2106-4c2e-9752-c28556d3a08e"
+    ],
+    "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) — Chapters 1-2 — Page 25",
+    "modality": "text",
+    "category": "direct"
+  },
+  {
+    "question": "Why does the lecture call computing the gradient computationally expensive?",
+    "expected_behavior": "answerable",
+    "reference_answer": "Because the gradient is computed as a summation over the entire dataset, which is very expensive when the dataset is large.",
+    "ground_truth_unit_ids": [
+      "59c0c0aa-30c2-411d-9d08-334a0d07bfcf"
+    ],
+    "ground_truth_locator": "MIT 6.S191 Lecture 1 recording — 41:51",
+    "modality": "transcript",
+    "category": "paraphrase"
+  },
+  {
+    "question": "What does it compute?",
+    "expected_behavior": "ambiguous",
+    "reference_answer": null,
+    "ground_truth_unit_ids": [],
+    "ground_truth_locator": "",
+    "modality": "text",
+    "category": "ambiguous"
+  },
+  {
+    "question": "How does batch normalisation stabilise training in a deep network?",
+    "expected_behavior": "off_material",
+    "reference_answer": null,
+    "ground_truth_unit_ids": [],
+    "ground_truth_locator": "",
+    "modality": "text",
+    "category": "off_material"
+  },
+  {
+    "question": "How do convolutional layers share weights across an image?",
+    "expected_behavior": "off_material",
+    "reference_answer": null,
+    "ground_truth_unit_ids": [],
+    "ground_truth_locator": "",
+    "modality": "text",
+    "category": "off_material"
+  },
+  {
+    "question": "What causes the vanishing gradient problem in recurrent neural networks?",
+    "expected_behavior": "off_material",
+    "reference_answer": null,
+    "ground_truth_unit_ids": [],
+    "ground_truth_locator": "",
+    "modality": "text",
+    "category": "off_material"
+  },
+  {
+    "question": "What are the gates inside an LSTM cell and what does each one do?",
+    "expected_behavior": "off_material",
+    "reference_answer": null,
+    "ground_truth_unit_ids": [],
+    "ground_truth_locator": "",
+    "modality": "text",
+    "category": "off_material"
+  },
+  {
+    "question": "How does the Adam optimiser adapt its learning rate using first and second moments?",
+    "expected_behavior": "off_material",
+    "reference_answer": null,
+    "ground_truth_unit_ids": [],
+    "ground_truth_locator": "",
+    "modality": "text",
+    "category": "off_material"
+  },
+  {
+    "question": "What is the computational complexity of backpropagation expressed in big-O notation?",
+    "expected_behavior": "off_material",
+    "reference_answer": null,
+    "ground_truth_unit_ids": [],
+    "ground_truth_locator": "",
+    "modality": "text",
+    "category": "insufficient"
+  },
+  {
+    "question": "Which optimiser does the book recommend for training the MNIST network on a GPU cluster?",
+    "expected_behavior": "off_material",
+    "reference_answer": null,
+    "ground_truth_unit_ids": [],
+    "ground_truth_locator": "",
+    "modality": "text",
+    "category": "misleading"
+  },
+  {
+    "question": "What accuracy does the lecture report for a transformer trained on MNIST?",
+    "expected_behavior": "off_material",
+    "reference_answer": null,
+    "ground_truth_unit_ids": [],
+    "ground_truth_locator": "",
+    "modality": "text",
+    "category": "misleading"
+  }
+]

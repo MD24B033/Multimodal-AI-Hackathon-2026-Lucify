@@ -21,7 +21,25 @@ class Prediction:
 
     @property
     def retrieved_ground_truth(self) -> bool:
+        """Did retrieval put the ground-truth passage in front of the generator."""
         return bool(set(self.answer.retrieved_unit_ids) & set(self.case.ground_truth_unit_ids))
+
+    @property
+    def cited_ground_truth(self) -> bool:
+        """Did the generator cite it. Strictly harder, and a different property."""
+        return bool(set(self.answer.cited_unit_ids) & set(self.case.ground_truth_unit_ids))
+
+
+def locator_of(unit: dict) -> tuple:
+    """Page, slide or timestamp identity. Chunking splits a page into several units,
+    so a sibling chunk from the right page is a locator hit even when the exact unit
+    is not retrieved -- and a learner clicking the citation lands in the right place."""
+    return (
+        unit.get("source_id"),
+        unit.get("page_no"),
+        unit.get("slide_no"),
+        unit.get("start_time_s"),
+    )
 
 
 def collect(
@@ -31,51 +49,98 @@ def collect(
     cases: list[TestCase],
     *,
     on_progress=None,
+    units: dict[str, dict] | None = None,
 ) -> list[Prediction]:
     session_id = client.create_session(course_id, student_id, title="Evaluation run")
     predictions: list[Prediction] = []
+    lookup = units or {}
 
     for index, case in enumerate(cases):
         if on_progress:
             on_progress(index, len(cases), case.question)
         answer = client.ask(session_id, case.question)
-        contexts = [citation.get("excerpt", "") for citation in answer.citations]
+        # Judge against the passages the generator was given. Judging against the
+        # ones it chose to cite marks a claim unfaithful whenever its support sat in
+        # an uncited passage, and marks a wrong answer faithful whenever the model
+        # cited whatever it happened to use.
+        contexts = [
+            lookup[unit_id]["text"]
+            for unit_id in answer.retrieved_unit_ids
+            if unit_id in lookup and lookup[unit_id].get("text")
+        ]
+        if not contexts:
+            contexts = [citation.get("excerpt", "") for citation in answer.citations]
         predictions.append(Prediction(case=case, answer=answer, contexts=contexts))
 
     return predictions
 
 
-def retrieval_metrics(predictions: list[Prediction]) -> dict[str, Any]:
+def retrieval_metrics(
+    predictions: list[Prediction], units: dict[str, dict] | None = None
+) -> dict[str, Any]:
+    """Three levels, because they fail for different reasons and have different fixes.
+
+    unit      - the exact chunk the question was written from reached the context
+    locator   - some chunk from the right page/slide/timestamp reached the context
+    citation  - the generator pointed the learner at that passage
+    """
+    lookup = units or {}
     answerable = [p for p in predictions if p.case.expected_behavior == "answerable"]
     scored = [p for p in answerable if p.case.ground_truth_unit_ids]
     if not scored:
         return {}
 
-    hits = 0
-    reciprocal = []
-    precisions = []
-    recalls = []
+    hits = cited_hits = locator_hits = 0
+    reciprocal: list[float] = []
+    precisions: list[float] = []
+    recalls: list[float] = []
+    cited_precisions: list[float] = []
 
     for prediction in scored:
         truth = set(prediction.case.ground_truth_unit_ids)
         retrieved = prediction.answer.retrieved_unit_ids
+        cited = prediction.answer.cited_unit_ids
+
         matched = [i for i, unit_id in enumerate(retrieved) if unit_id in truth]
         if matched:
             hits += 1
             reciprocal.append(1.0 / (matched[0] + 1))
         else:
             reciprocal.append(0.0)
+
         if retrieved:
             precisions.append(len(set(retrieved) & truth) / len(retrieved))
         recalls.append(len(set(retrieved) & truth) / len(truth))
 
-    return {
+        if prediction.cited_ground_truth:
+            cited_hits += 1
+        if cited:
+            cited_precisions.append(len(set(cited) & truth) / len(cited))
+
+        if lookup:
+            truth_places = {
+                locator_of(lookup[unit_id]) for unit_id in truth if unit_id in lookup
+            }
+            got_places = {
+                locator_of(lookup[unit_id]) for unit_id in retrieved if unit_id in lookup
+            }
+            if truth_places & got_places:
+                locator_hits += 1
+
+    metrics = {
         "source_hit_rate": round(hits / len(scored), 4),
         "mean_reciprocal_rank": round(sum(reciprocal) / len(scored), 4),
         "source_precision_at_k": round(sum(precisions) / len(precisions), 4) if precisions else 0.0,
         "source_recall": round(sum(recalls) / len(recalls), 4) if recalls else 0.0,
+        "citation_hit_rate": round(cited_hits / len(scored), 4),
+        "citation_precision": (
+            round(sum(cited_precisions) / len(cited_precisions), 4) if cited_precisions else 0.0
+        ),
         "answerable_cases": len(scored),
     }
+    if lookup:
+        metrics["locator_hit_rate"] = round(locator_hits / len(scored), 4)
+    return metrics
 
 
 def refusal_metrics(predictions: list[Prediction]) -> dict[str, Any]:
@@ -85,8 +150,19 @@ def refusal_metrics(predictions: list[Prediction]) -> dict[str, Any]:
     correct = sum(1 for p in off_material if p.answer.grounding_status in REFUSED)
     false_refusals = sum(1 for p in answerable if p.answer.grounding_status in REFUSED)
 
+    ambiguous = [p for p in predictions if p.case.expected_behavior == "ambiguous"]
+
     metrics: dict[str, Any] = {
         "off_material_cases": len(off_material),
+        "ambiguous_cases": len(ambiguous),
+        "ambiguous_handled": (
+            round(
+                sum(1 for p in ambiguous if p.answer.grounding_status in REFUSED) / len(ambiguous),
+                4,
+            )
+            if ambiguous
+            else None
+        ),
         "correct_refusal_rate": round(correct / len(off_material), 4) if off_material else None,
         "false_refusal_rate": round(false_refusals / len(answerable), 4) if answerable else None,
     }
@@ -182,6 +258,7 @@ def ragas_metrics(predictions: list[Prediction], judge: GroqJudge) -> dict[str, 
     )
 
     frame = result.to_pandas()
+    aggregate_n = len(scored)
     skip = {"user_input", "response", "retrieved_contexts", "reference"}
     aggregate: dict[str, Any] = {}
     for column in frame.columns:
@@ -190,6 +267,7 @@ def ragas_metrics(predictions: list[Prediction], judge: GroqJudge) -> dict[str, 
         series = frame[column].dropna()
         if len(series):
             aggregate[column] = round(float(series.mean()), 4)
+            aggregate[f"{column}_n"] = int(len(series))
 
     for index, prediction in enumerate(scored):
         prediction.case_scores = {  # type: ignore[attr-defined]
@@ -202,6 +280,8 @@ def ragas_metrics(predictions: list[Prediction], judge: GroqJudge) -> dict[str, 
             if column not in skip
         }
 
+    aggregate["ragas_cases"] = aggregate_n
+    aggregate["ragas_context_source"] = "retrieved"
     return aggregate
 
 

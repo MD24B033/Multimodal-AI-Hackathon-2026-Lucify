@@ -86,6 +86,10 @@ class Settings(BaseSettings):
     retrieval_top_k: int = 8
     rrf_k: int = 60
     grounding_threshold: float = 0.38
+    # Refuse before generating when the best passage does not stand clear of the rest
+    # by this much. Chosen on evaluation/datasets/dev.json: no false refusals there,
+    # while catching five of eight off-material questions before a token is spent.
+    grounding_margin: float = 0.028
     novelty_threshold: float = 0.88
 
     storage_dir: Path = Field(default=BACKEND_ROOT / "storage")

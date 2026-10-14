@@ -251,6 +251,19 @@ def ask(session_id: uuid.UUID, payload: AskRequest, session: Session = DbSession
             "recalled_excerpts": len(context.recalled),
             "tokens_saved": context.tokens_saved,
         },
+        # Why the answer was allowed or refused, so a run can be audited without
+        # re-running retrieval against a corpus that may have moved on.
+        "retrieval": {
+            "best_score": result.coverage,
+            "margin": result.margin,
+            "unit_ids": [
+                str(item.unit.id) for item in (result.retrieval.units if result.retrieval else [])
+            ],
+            "labels": [
+                f"{item.source.title} — {item.label()}"
+                for item in (result.retrieval.units if result.retrieval else [])
+            ],
+        },
     }
 
 

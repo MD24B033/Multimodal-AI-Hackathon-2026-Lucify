@@ -88,6 +88,10 @@ def serialize_message(message: ChatMessage) -> dict:
         "citations": message.citations or [],
         "grounding_status": message.grounding_status.value if message.grounding_status else None,
         "coverage": message.coverage,
+        # The passages the generator actually saw. Scoring retrieval from `citations`
+        # measures which of them the model chose to mention, which is a different
+        # property and a much harsher one.
+        "retrieved_unit_ids": message.retrieved_unit_ids or [],
         "outside_knowledge": message.outside_knowledge,
         "language": message.language,
         "audio_url": f"/api/media/audio/{message.id}" if message.audio_path else None,

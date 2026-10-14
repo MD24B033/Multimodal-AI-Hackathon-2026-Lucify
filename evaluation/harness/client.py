@@ -19,7 +19,13 @@ class Answer:
     grounding_status: str
     coverage: float
     citations: list[dict[str, Any]]
+    # What retrieval put in front of the generator, and what the generator chose to
+    # cite from it. These are different things: scoring retrieval from the citations
+    # counts a correct passage as a miss whenever the model cited a neighbour.
     retrieved_unit_ids: list[str]
+    cited_unit_ids: list[str]
+    retrieved_labels: list[str]
+    margin: float
     latency_ms: int
 
     @property
@@ -76,6 +82,19 @@ class StudyCompanionClient:
             params["modality"] = modality
         return self._request("GET", f"/api/courses/{course_id}/units", params=params)
 
+    def all_units(self, course_id: str) -> list[dict[str, Any]]:
+        """Every unit, paginated. The endpoint caps a page at 200, so a single call
+        silently truncated a 327-unit course: test cases could only ever be drawn
+        from the first 200 units."""
+        collected: list[dict[str, Any]] = []
+        offset = 0
+        while True:
+            page = self.units(course_id, limit=200, offset=offset)
+            collected.extend(page)
+            if len(page) < 200:
+                return collected
+            offset += len(page)
+
     def sources(self, course_id: str) -> list[dict[str, Any]]:
         return self._request("GET", f"/api/courses/{course_id}/sources")
 
@@ -118,15 +137,22 @@ class StudyCompanionClient:
             },
         )
         message = payload["message"]
+        retrieval = payload.get("retrieval") or {}
+        cited = [citation["unit_id"] for citation in (message.get("citations") or [])]
+        # Older builds did not report the retrieval set; fall back to the citations so
+        # the harness still runs, and say so in the results rather than silently
+        # measuring the wrong thing.
+        retrieved = message.get("retrieved_unit_ids") or retrieval.get("unit_ids") or cited
         return Answer(
             question=question,
             text=message.get("content", ""),
             grounding_status=message.get("grounding_status") or "unknown",
             coverage=float(message.get("coverage") or 0.0),
             citations=message.get("citations") or [],
-            retrieved_unit_ids=[
-                citation["unit_id"] for citation in (message.get("citations") or [])
-            ],
+            retrieved_unit_ids=list(retrieved),
+            cited_unit_ids=cited,
+            retrieved_labels=list(retrieval.get("labels") or []),
+            margin=float(retrieval.get("margin") or 0.0),
             latency_ms=message.get("latency_ms") or int((time.perf_counter() - started) * 1000),
         )
 
