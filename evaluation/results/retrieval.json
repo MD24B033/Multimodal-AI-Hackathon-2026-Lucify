@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Why does the book say a network of perceptrons can carry out any computation at all?",
+    "behavior": "answerable",
+    "category": "direct",
+    "rank": 6,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.0485,
+    "best_score": 0.7813
+  },
+  {
+    "question": "What weights and bias turn a perceptron into the equivalent of a NAND gate?",
+    "behavior": "answerable",
+    "category": "structured",
+    "rank": 1,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.0818,
+    "best_score": 0.8341
+  },
+  {
+    "question": "What problem with perceptrons do sigmoid neurons fix?",
+    "behavior": "answerable",
+    "category": "direct",
+    "rank": 2,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.0476,
+    "best_score": 0.8024
+  },
+  {
+    "question": "Which kind of artificial neuron accepts any value between 0 and 1 as an input rather than only 0 or 1?",
+    "behavior": "answerable",
+    "category": "paraphrase",
+    "rank": 1,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.0925,
+    "best_score": 0.8218
+  },
+  {
+    "question": "Why does the author concentrate on classifying individual digits instead of on segmentation?",
+    "behavior": "answerable",
+    "category": "direct",
+    "rank": 1,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.1298,
+    "best_score": 0.8279
+  },
+  {
+    "question": "How are the weights and biases initialised in the Network class, and which layer gets no biases?",
+    "behavior": "answerable",
+    "category": "structured",
+    "rank": 1,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.0497,
+    "best_score": 0.8224
+  },
+  {
+    "question": "How many fundamental equations is backpropagation built around?",
+    "behavior": "answerable",
+    "category": "direct",
+    "rank": 1,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.0715,
+    "best_score": 0.8279
+  },
+  {
+    "question": "What is the point of an activation function in a neural network?",
+    "behavior": "answerable",
+    "category": "direct",
+    "rank": 1,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.1219,
+    "best_score": 0.8723
+  },
+  {
+    "question": "Which activation function is described as piecewise with a single nonlinearity at x equals zero?",
+    "behavior": "answerable",
+    "category": "paraphrase",
+    "rank": 1,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.0591,
+    "best_score": 0.7562
+  },
+  {
+    "question": "Which regularisation technique sets a random half of the activations to zero on each training iteration?",
+    "behavior": "answerable",
+    "category": "direct",
+    "rank": 2,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.0305,
+    "best_score": 0.7613
+  },
+  {
+    "question": "Why is deep learning being studied now when the underlying algorithms are decades old?",
+    "behavior": "answerable",
+    "category": "multi",
+    "rank": 1,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.075,
+    "best_score": 0.8164
+  },
+  {
+    "question": "On the single-layer network diagram, how is the hidden unit z2 computed?",
+    "behavior": "answerable",
+    "category": "structured",
+    "rank": 3,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.0583,
+    "best_score": 0.8089
+  },
+  {
+    "question": "What other names does the course give for the empirical loss?",
+    "behavior": "answerable",
+    "category": "direct",
+    "rank": 1,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.0978,
+    "best_score": 0.7665
+  },
+  {
+    "question": "What is the exact title of the slide that introduces empirical loss?",
+    "behavior": "answerable",
+    "category": "exact_title",
+    "rank": 1,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.0777,
+    "best_score": 0.7558
+  },
+  {
+    "question": "Which slide is titled \"The Perceptron: Example\"?",
+    "behavior": "answerable",
+    "category": "exact_title",
+    "rank": 1,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.0872,
+    "best_score": 0.8126
+  },
+  {
+    "question": "Why does the book say you cannot simply eyeball a graph to minimise the cost function in general?",
+    "behavior": "answerable",
+    "category": "direct",
+    "rank": 3,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.0354,
+    "best_score": 0.7289
+  },
+  {
+    "question": "Why does the lecture call computing the gradient computationally expensive?",
+    "behavior": "answerable",
+    "category": "paraphrase",
+    "rank": 1,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.0633,
+    "best_score": 0.7994
+  },
+  {
+    "question": "What does it compute?",
+    "behavior": "ambiguous",
+    "category": "ambiguous",
+    "rank": null,
+    "unit_hit": false,
+    "locator_hit": false,
+    "margin": 0.0056,
+    "best_score": 0.6923
+  },
+  {
+    "question": "How does batch normalisation stabilise training in a deep network?",
+    "behavior": "off_material",
+    "category": "off_material",
+    "rank": null,
+    "unit_hit": false,
+    "locator_hit": false,
+    "margin": 0.0243,
+    "best_score": 0.7647
+  },
+  {
+    "question": "How do convolutional layers share weights across an image?",
+    "behavior": "off_material",
+    "category": "off_material",
+    "rank": null,
+    "unit_hit": false,
+    "locator_hit": false,
+    "margin": 0.0327,
+    "best_score": 0.7693
+  },
+  {
+    "question": "What causes the vanishing gradient problem in recurrent neural networks?",
+    "behavior": "off_material",
+    "category": "off_material",
+    "rank": null,
+    "unit_hit": false,
+    "locator_hit": false,
+    "margin": 0.0381,
+    "best_score": 0.7728
+  },
+  {
+    "question": "What are the gates inside an LSTM cell and what does each one do?",
+    "behavior": "off_material",
+    "category": "off_material",
+    "rank": null,
+    "unit_hit": false,
+    "locator_hit": false,
+    "margin": 0.0123,
+    "best_score": 0.6357
+  },
+  {
+    "question": "How does the Adam optimiser adapt its learning rate using first and second moments?",
+    "behavior": "off_material",
+    "category": "off_material",
+    "rank": null,
+    "unit_hit": false,
+    "locator_hit": false,
+    "margin": 0.0358,
+    "best_score": 0.7584
+  },
+  {
+    "question": "What is the computational complexity of backpropagation expressed in big-O notation?",
+    "behavior": "off_material",
+    "category": "insufficient",
+    "rank": null,
+    "unit_hit": false,
+    "locator_hit": false,
+    "margin": 0.0207,
+    "best_score": 0.7478
+  },
+  {
+    "question": "Which optimiser does the book recommend for training the MNIST network on a GPU cluster?",
+    "behavior": "off_material",
+    "category": "misleading",
+    "rank": null,
+    "unit_hit": false,
+    "locator_hit": false,
+    "margin": 0.0179,
+    "best_score": 0.6678
+  },
+  {
+    "question": "What accuracy does the lecture report for a transformer trained on MNIST?",
+    "behavior": "off_material",
+    "category": "misleading",
+    "rank": null,
+    "unit_hit": false,
+    "locator_hit": false,
+    "margin": 0.022,
+    "best_score": 0.6897
+  }
+]

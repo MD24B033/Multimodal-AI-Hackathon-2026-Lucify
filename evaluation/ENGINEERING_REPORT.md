@@ -47,6 +47,11 @@ tokens), on the same 8 answerable cases:
 | MRR | 75.0% | **81.2%** |
 | Locator hit rate (right page/slide) | not measured | **100%** |
 
+Reproduce with `python run_retrieval_eval.py --dataset results/testset.json`; it costs
+no tokens, and the output is in `results/retrieval_heldout.json`. The single unit-level
+miss is case 6, where the ground-truth chunk ("What this book is about", page 5) ranks
+below a sibling chunk from the same page — so the learner is still sent to page 5.
+
 `source_precision_at_k` is worse than mislabelled: its denominator was the number of
 cited passages (1–2), not `k` (8).
 
@@ -167,6 +172,24 @@ would refuse 100% of off-material but at an 11.8% false-refusal rate, far outsid
 ≤2% target. The model's own `unsupported` verdict remains the second line of defence
 for what the gate passes.
 
+The same signal on the **held-out** canonical set, which was not used to choose the
+threshold: margin AUC **0.906** against best-cosine's **0.750**. Per case at 0.028:
+
+| margin | gate | case |
+|---|---|---|
+| 0.013 | refuse | off-material: reinforcement learning |
+| 0.015 | refuse | off-material: Bayesian hyperparameter optimisation |
+| 0.040 | pass | off-material: GANs *(model refuses it downstream)* |
+| 0.040 | pass | answerable: perceptron forward propagation |
+| 0.048 | pass | answerable: main focus of the book |
+| 0.053 | pass | answerable: slide title text |
+| 0.055 | pass | off-material: attention *(model refuses it downstream)* |
+| 0.072–0.140 | pass | the remaining five answerable cases |
+
+**8 of 8 answerable cases pass the gate — no false refusals — and 2 of 4 off-material
+questions are refused before any token is spent.** The other two reach the model, which
+refused both in the published run through its own `unsupported` verdict.
+
 Measured end to end against the running app:
 
 | question | before | after |
@@ -188,6 +211,20 @@ otherwise idle instance:
 | 1 (cold, just after reload) | 33,388 ms | 2,737 | 117 | 0 | 71 | 25 | 3 |
 | 2 (warm) | **1,106 ms** | 659 | 127 | 0 | 61 | 25 | 3 |
 | 3 (budget exhausted) | 52,461 ms | 1,286 | **42,494** | **8,386** | 70 | 23 | 4 |
+
+The same four canonical questions, published run against the run after the fix (asking
+phase only, same order, same corpus):
+
+| case | published | after |
+|---|---|---|
+| perceptron with no inputs | 22,239 ms | **1,470 ms** |
+| activation functions | 58,456 ms | **6,083 ms** |
+| the symbol rho-C | 60,134 ms | **7,361 ms** |
+| 784 input neurons | 61,112 ms | 50,605 ms |
+
+Indicative, not controlled: four cases, and the second run was interrupted (§10). The
+fourth case shows the ceiling reasserting itself once the minute's budget is genuinely
+spent.
 
 Retrieval is not the bottleneck and never was: embedding, vector search and lexical
 search together cost **~100 ms**. A warm answer costs **1.1 s**. The rest is the 8,000
@@ -260,7 +297,41 @@ remains far too small a sample to support any claim, and nothing here changes th
 
 ---
 
-## 8. Reproducing
+## 8. The blocked experiment
+
+**The held-out generation benchmark has not been re-run to completion.** The Groq free
+tier's daily allowance ran out part-way through: the app began returning *"Daily token
+quota exhausted: 198,715 of 200,000 tokens"* from case 7 onward. Cases 1–6 produced
+genuine answers; 7–12 are quota artifacts, and RAGAS could not score at all.
+
+Nothing partial was written to `results_v2/`, and no number in this report comes from
+those six cases. The baseline in §1 remains the only complete generation run, and the
+comparison it belongs to is outstanding.
+
+To finish it, once the daily quota resets:
+
+```bash
+cd evaluation
+export GROQ_API_KEY=... ACCESS_KEY=...
+python run_eval.py --course "Deep Learning Foundations" \
+    --testset results/testset.json --out results_v2
+```
+
+Expected from the changes already verified, and worth checking against:
+
+- **source_hit_rate 0.75 → 0.875** and **MRR 0.75 → 0.812** — already measured
+  token-free on the held-out set, so these should reproduce exactly.
+- **false_refusal_rate stays 0.0** — all 8 answerable cases clear the gate by margin.
+- **correct_refusal_rate stays 1.0**, with 2 of 4 now refused pre-generation.
+- **faithfulness should move, and may move down** — it is now judged against the eight
+  passages the generator saw rather than the one or two it cited. That is a fairer and
+  harder test, and case 7's undeserved 1.0 should fall. A lower number here would be a
+  more honest one; it is not a regression.
+
+Run everything else first — the token-free benchmark and both test suites — since they
+need no quota and catch most regressions.
+
+## 9. Reproducing
 
 ```bash
 # token-free: retrieval and the refusal signal, any number of times
@@ -279,7 +350,7 @@ cd evaluation   && python -m pytest tests/ -q
 
 ---
 
-## 9. Changes made
+## 10. Changes made
 
 | File | Change |
 |---|---|

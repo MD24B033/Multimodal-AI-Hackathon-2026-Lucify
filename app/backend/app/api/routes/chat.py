@@ -298,5 +298,8 @@ def search_material(payload: SearchRequest, session: Session = DbSession):
     return {
         "query": payload.query,
         "best_score": round(result.best_score, 4),
+        # How far the best passage stands above the rest: the signal the refusal gate
+        # runs on, exposed so retrieval can be benchmarked without spending tokens.
+        "margin": round(result.margin, 4),
         "results": result.citations(),
     }

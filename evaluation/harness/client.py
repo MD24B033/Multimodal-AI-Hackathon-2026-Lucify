@@ -156,13 +156,13 @@ class StudyCompanionClient:
             latency_ms=message.get("latency_ms") or int((time.perf_counter() - started) * 1000),
         )
 
-    def search(self, course_id: str, query: str, top_k: int = 8) -> list[dict[str, Any]]:
+    def search(self, course_id: str, query: str, top_k: int = 8) -> dict[str, Any]:
         payload = self._request(
             "POST",
             "/api/chat/search",
             json={"course_id": course_id, "query": query, "top_k": top_k},
         )
-        return payload["results"]
+        return payload
 
     def create_assessment(
         self,

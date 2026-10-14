@@ -1,0 +1,122 @@
+[
+  {
+    "question": "What output would a perceptron have if it had no inputs?",
+    "behavior": "answerable",
+    "category": "unspecified",
+    "rank": 1,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.0995,
+    "best_score": 0.83
+  },
+  {
+    "question": "Why are activation functions important in neural networks according to the slide?",
+    "behavior": "answerable",
+    "category": "unspecified",
+    "rank": 1,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.0815,
+    "best_score": 0.8535
+  },
+  {
+    "question": "What does the symbol ρC represent in the context of the given equations?",
+    "behavior": "answerable",
+    "category": "unspecified",
+    "rank": 1,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.1396,
+    "best_score": 0.8221
+  },
+  {
+    "question": "How many neurons are in the input layer of the neural network used for recognizing individual handwritten digits, and why?",
+    "behavior": "answerable",
+    "category": "unspecified",
+    "rank": 1,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.0724,
+    "best_score": 0.8654
+  },
+  {
+    "question": "What type of machine‑learning problem is Mean Squared Error loss used for, and how is it computed in TensorFlow?",
+    "behavior": "answerable",
+    "category": "unspecified",
+    "rank": 1,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.103,
+    "best_score": 0.8359
+  },
+  {
+    "question": "What equation describes how a perceptron computes its output ŷ during forward propagation, and how can it be expressed using vector notation?",
+    "behavior": "answerable",
+    "category": "unspecified",
+    "rank": 2,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.0402,
+    "best_score": 0.8343
+  },
+  {
+    "question": "What is the main focus of the book and what will readers be able to do after completing it?",
+    "behavior": "answerable",
+    "category": "unspecified",
+    "rank": null,
+    "unit_hit": false,
+    "locator_hit": true,
+    "margin": 0.0478,
+    "best_score": 0.591
+  },
+  {
+    "question": "What is the title text displayed on the slide described in the excerpt?",
+    "behavior": "answerable",
+    "category": "unspecified",
+    "rank": 1,
+    "unit_hit": true,
+    "locator_hit": true,
+    "margin": 0.0525,
+    "best_score": 0.7081
+  },
+  {
+    "question": "Can you explain how the attention mechanism works in transformer models and how it differs from traditional feedforward networks?",
+    "behavior": "off_material",
+    "category": "unspecified",
+    "rank": null,
+    "unit_hit": false,
+    "locator_hit": false,
+    "margin": 0.0551,
+    "best_score": 0.7717
+  },
+  {
+    "question": "What are the best practices for hyperparameter optimization using Bayesian methods for deep neural networks?",
+    "behavior": "off_material",
+    "category": "unspecified",
+    "rank": null,
+    "unit_hit": false,
+    "locator_hit": false,
+    "margin": 0.0154,
+    "best_score": 0.7278
+  },
+  {
+    "question": "How does reinforcement learning integrate with deep neural networks, and could you give an example of a policy gradient algorithm?",
+    "behavior": "off_material",
+    "category": "unspecified",
+    "rank": null,
+    "unit_hit": false,
+    "locator_hit": false,
+    "margin": 0.013,
+    "best_score": 0.742
+  },
+  {
+    "question": "Could you provide a detailed overview of generative adversarial networks (GANs) and how they are trained?",
+    "behavior": "off_material",
+    "category": "unspecified",
+    "rank": null,
+    "unit_hit": false,
+    "locator_hit": false,
+    "margin": 0.0398,
+    "best_score": 0.7798
+  }
+]

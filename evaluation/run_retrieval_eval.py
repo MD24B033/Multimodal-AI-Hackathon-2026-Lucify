@@ -72,9 +72,9 @@ def main() -> None:
 
     rows = []
     for case in cases:
-        results = client.search(course["id"], case["question"], top_k=args.top_k)
+        found = client.search(course["id"], case["question"], top_k=args.top_k)
+        results = found["results"]
         retrieved = [r.get("unit_id") or r.get("id") for r in results]
-        scores = [float(r.get("score") or r.get("vector_score") or 0.0) for r in results]
 
         truth = set(case.get("ground_truth_unit_ids") or [])
         ranks = [i for i, unit_id in enumerate(retrieved, 1) if unit_id in truth]
@@ -89,8 +89,8 @@ def main() -> None:
                 "rank": ranks[0] if ranks else None,
                 "unit_hit": bool(ranks),
                 "locator_hit": bool(truth_places & got_places),
-                "margin": round(margin_of(scores), 4),
-                "best_score": round(max(scores), 4) if scores else 0.0,
+                "margin": float(found.get("margin") or 0.0),
+                "best_score": float(found.get("best_score") or 0.0),
             }
         )
 
