@@ -15,14 +15,14 @@ const HIGHLIGHTS = [
 
 export default function LoginPage() {
   const router = useRouter();
-  const { signInWithKey, authRequired, student, ready } = useSession();
+  const { signInWithKey, authRequired, backendReachable, student, ready } = useSession();
   const [key, setKey] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (ready && (!authRequired || student !== null)) router.replace("/");
-  }, [ready, authRequired, student, router]);
+    if (ready && backendReachable && (!authRequired || student !== null)) router.replace("/");
+  }, [ready, backendReachable, authRequired, student, router]);
 
   async function submit() {
     if (!key.trim() || busy) return;
@@ -86,6 +86,12 @@ export default function LoginPage() {
               />
             </div>
           </div>
+
+          {ready && !backendReachable ? (
+            <div className="mt-4">
+              <Notice message="The API is not responding, so a key cannot be checked right now. If this instance was just deployed, the backend may still be starting, or its CORS_ORIGINS may not yet list this site." />
+            </div>
+          ) : null}
 
           {error ? (
             <div className="mt-4">

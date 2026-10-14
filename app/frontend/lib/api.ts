@@ -120,13 +120,19 @@ export async function signIn(key: string): Promise<{ name: string; student: unkn
   return response.json();
 }
 
-export async function authRequired(): Promise<boolean> {
+/** "unreachable" is deliberately its own answer rather than a falsy "not required":
+ *  a blocked CORS preflight or a sleeping backend used to look exactly like an
+ *  instance with authentication switched off, which sent people straight past the
+ *  login screen into an app that could not load anything. */
+export type AuthStatus = "required" | "disabled" | "unreachable";
+
+export async function authStatus(): Promise<AuthStatus> {
   try {
     const response = await fetch(`${API_BASE}/api/auth/status`, { cache: "no-store" });
-    if (!response.ok) return false;
+    if (!response.ok) return "unreachable";
     const body = (await response.json()) as { auth_required: boolean };
-    return Boolean(body.auth_required);
+    return body.auth_required ? "required" : "disabled";
   } catch {
-    return false;
+    return "unreachable";
   }
 }

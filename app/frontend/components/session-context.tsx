@@ -12,7 +12,8 @@ import {
 } from "react";
 
 import {
-  authRequired,
+  API_BASE,
+  authStatus,
   get,
   post,
   readAccessKey,
@@ -25,6 +26,7 @@ import type { Course, Profile, Student } from "@/lib/types";
 type SessionValue = {
   ready: boolean;
   authRequired: boolean;
+  backendReachable: boolean;
   signedIn: boolean;
   student: Student | null;
   profiles: Profile[];
@@ -48,7 +50,8 @@ const PROFILE_KEY = "companion.profile";
 export function SessionProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [ready, setReady] = useState(false);
-  const [required, setRequired] = useState(false);
+  const [required, setRequired] = useState(true);
+  const [reachable, setReachable] = useState(true);
   const [student, setStudent] = useState<Student | null>(null);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [profileId, setProfileId] = useState<string | null>(null);
@@ -148,11 +151,20 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     async function boot() {
-      const needsAuth = await authRequired();
+      const status = await authStatus();
       if (cancelled) return;
-      setRequired(needsAuth);
+      setReachable(status !== "unreachable");
+      // An unreachable API keeps the app locked rather than letting anyone past the
+      // login screen on the strength of a request that never arrived.
+      setRequired(status !== "disabled");
 
-      if (!needsAuth) {
+      if (status === "unreachable") {
+        setError(`Could not reach the API at ${API_BASE}.`);
+        setReady(true);
+        return;
+      }
+
+      if (status === "disabled") {
         const students = await get<Student[]>("/api/learner/students").catch(() => []);
         if (cancelled) return;
         setStudent(students[0] ?? null);
@@ -198,6 +210,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     () => ({
       ready,
       authRequired: required,
+      backendReachable: reachable,
       signedIn: !required || student !== null,
       student,
       profiles,
@@ -216,6 +229,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     [
       ready,
       required,
+      reachable,
       student,
       profiles,
       profileId,

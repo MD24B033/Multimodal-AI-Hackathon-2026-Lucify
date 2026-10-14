@@ -168,6 +168,30 @@ export ACCESS_KEY=...              # one of the app's ACCESS_KEYS
 python run_eval.py --course "Deep Learning Foundations" --answerable 8 --off-material 4
 ```
 
+## Deploying
+
+The frontend is a static Next.js build on Vercel; the backend runs on Railway against a Neon
+database. The frontend needs no environment variable — the API URL is compiled into
+`frontend/lib/api.ts` — but the backend must be told which site is allowed to call it:
+
+| Variable | Value |
+|---|---|
+| `CORS_ORIGINS` | `https://your-app.vercel.app` (comma-separated for several) |
+| `CORS_ORIGIN_REGEX` | optional, e.g. `https://lucify-.*\.vercel\.app` to cover preview deploys |
+| `DATABASE_URL` | the Neon connection string |
+| `ACCESS_KEYS` | `key:Name`, comma-separated — one per person |
+| `GROQ_API_KEY` | required |
+| `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | optional, for live progress and a shared token budget |
+
+If `CORS_ORIGINS` does not list the site, the browser blocks every call: the login screen cannot
+even check whether a key is needed. The app will say so rather than silently letting you through.
+Check it from a terminal — a healthy pairing echoes the site back:
+
+```bash
+curl -i -H "Origin: https://your-app.vercel.app" \
+  https://your-api.up.railway.app/api/auth/status | grep -i access-control-allow-origin
+```
+
 ## Rate limits
 
 The system is built for a Groq free tier of **8,000 tokens per minute**. A shared token bucket,
