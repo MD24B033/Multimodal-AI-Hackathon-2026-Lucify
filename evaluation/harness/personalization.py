@@ -122,6 +122,47 @@ def run_session(
     }
 
 
+def calibration_on_evidence(
+    mastery_rows: list[dict[str, Any]], learner: "SimulatedLearner"
+) -> dict[str, Any]:
+    """Calibration restricted to topics the learner was actually questioned on.
+
+    The whole-course figure compares two different things. The estimate averages
+    p_known over every subtopic in the course, most of which sit untouched at the
+    cold-start prior, while the truth averages the simulated learner's ability over
+    the handful of topics a session reached. An advanced learner therefore shows a
+    0.48 "calibration error" that is really the model saying it has no evidence yet:
+    on the published run the two novice learners scored 0.006 and 0.034 while the two
+    advanced learners scored 0.482 and 0.477 after six questions each.
+
+    Reported alongside the coverage it is conditioned on, because a well-calibrated
+    estimate over three of thirty-seven topics is not the same claim as one over all
+    of them.
+    """
+    practised = [row for row in mastery_rows if (row.get("attempts") or 0) > 0]
+    total = len(mastery_rows) or 1
+    if not practised:
+        return {
+            "calibration_error_on_evidence": None,
+            "topics_practised": 0,
+            "topics_total": len(mastery_rows),
+            "evidence_coverage": 0.0,
+        }
+
+    estimated = sum(row["mastery"] for row in practised) / len(practised)
+    true = sum(
+        irt_probability(learner.ability.get(row["topic_id"], 0.0), 0.0) for row in practised
+    ) / len(practised)
+    return {
+        "calibration_error_on_evidence": round(abs(estimated - true), 4),
+        "estimated_on_evidence": round(estimated, 4),
+        "true_on_evidence": round(true, 4),
+        "topics_practised": len(practised),
+        "topics_total": len(mastery_rows),
+        "evidence_coverage": round(len(practised) / total, 4),
+    }
+
+
 def _mean(values: list[float]) -> float | None:
     clean = [v for v in values if v is not None]
     return round(sum(clean) / len(clean), 4) if clean else None
@@ -183,6 +224,9 @@ def run(
 
                 final_true = learner.true_mastery(topic_ids)
                 final_estimate = client.dashboard(learner.student_id, course_id)["overall_mastery"]
+                evidence = calibration_on_evidence(
+                    client.mastery(learner.student_id, course_id), learner
+                )
 
                 results[arm].append(
                     {
@@ -197,6 +241,7 @@ def run(
                         "final_estimated_mastery": round(final_estimate, 4),
                         "estimated_mastery_gain": round(final_estimate - initial_estimate, 4),
                         "calibration_error": round(abs(final_estimate - final_true), 4),
+                        **evidence,
                         "questions_asked": learner.total_questions,
                         "repeated_questions": learner.repeats,
                         "repetition_rate": round(learner.repeats / learner.total_questions, 4)
@@ -215,6 +260,10 @@ def run(
             "mean_true_mastery_gain": _mean([x["true_mastery_gain"] for x in learners]),
             "mean_estimated_mastery_gain": _mean([x["estimated_mastery_gain"] for x in learners]),
             "mean_calibration_error": _mean([x["calibration_error"] for x in learners]),
+            "mean_calibration_error_on_evidence": _mean(
+                [x["calibration_error_on_evidence"] for x in learners]
+            ),
+            "mean_evidence_coverage": _mean([x["evidence_coverage"] for x in learners]),
             "question_repetition_rate": _mean([x["repetition_rate"] for x in learners]),
             "total_questions": sum(x["questions_asked"] for x in learners),
             "by_persona": {

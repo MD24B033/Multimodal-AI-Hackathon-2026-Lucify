@@ -48,6 +48,8 @@ Rules:
 
 @dataclass
 class TestCase:
+    __test__ = False  # a dataclass, not a pytest collection target
+
     question: str
     expected_behavior: str
     reference_answer: str | None = None
