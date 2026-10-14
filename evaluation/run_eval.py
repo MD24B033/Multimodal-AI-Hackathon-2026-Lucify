@@ -161,6 +161,15 @@ def render_report(
     return "\n".join(part for part in parts if part)
 
 
+# Course material carries Greek letters and maths symbols. A Windows console defaults
+# to cp1252 and raises on them, which would kill a run halfway through.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Evaluate a running Study Companion instance over its HTTP API"

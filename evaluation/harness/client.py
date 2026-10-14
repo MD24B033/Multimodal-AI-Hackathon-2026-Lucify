@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import time
 from dataclasses import dataclass
 from typing import Any
@@ -27,9 +28,13 @@ class Answer:
 
 
 class StudyCompanionClient:
-    def __init__(self, base_url: str, timeout: float = 300.0):
+    def __init__(self, base_url: str, timeout: float = 300.0, access_key: str | None = None):
         self.base_url = base_url.rstrip("/")
-        self._client = httpx.Client(timeout=timeout)
+        # The app requires a pre-shared key whenever ACCESS_KEYS is configured, so the
+        # harness has to present one too. Without it every call comes back 401.
+        key = access_key or os.environ.get("ACCESS_KEY") or os.environ.get("LUCIFY_ACCESS_KEY", "")
+        headers = {"X-Access-Key": key.strip()} if key.strip() else {}
+        self._client = httpx.Client(timeout=timeout, headers=headers)
 
     def close(self) -> None:
         self._client.close()

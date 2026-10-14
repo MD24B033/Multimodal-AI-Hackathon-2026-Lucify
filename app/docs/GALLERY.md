@@ -1,18 +1,24 @@
 # Gallery
 
-## Demo
+## Demo video
 
-![demo](gallery/lucify-demo.mp4)
+**[lucify_final_demo.mp4](gallery/lucify_final_demo.mp4)** — 5:31, 1920×1080, narrated.
 
-[lucify-demo.mp4](gallery/lucify-demo.mp4) — four minutes, captioned, recorded against a
-local instance. It runs the whole path: the key gate, a document ingested from scratch,
-a grounded answer with a citation opened at the highlighted lines, a refusal, notes,
-background assessment generation, spoken tutoring and the memory page.
+The video alternates explanation with proof: a diagram of a subsystem, then the matching
+clip of that subsystem running. Six pairs, covering architecture and access control,
+ingestion, grounded tutoring, the refusal path, the learner model, and adaptive
+assessment, closing on a mind map of the whole system.
 
-The wait while the ingest finished is cut, and the cut is labelled on screen.
+There are no subtitles — the only text on screen is the diagrams and their headings.
+Waiting is sped up in place rather than cut, so nothing is misrepresented. Narration is
+spoken by the app's own Sarvam voice client.
 
+- [lucify_voiceover_transcript.txt](gallery/lucify_voiceover_transcript.txt) — every line with in/out timestamps
+- [lucify_timing_manifest.csv](gallery/lucify_timing_manifest.csv) — the same, as data
 
-Five screens, captured from the running app at 1440×900 on a 2× display. Each has a plain
+## Screens
+
+Five screens captured from the running app at 1440×900 on a 2× display. Each has a plain
 version and an `-annotated` version with numbered callouts, in `docs/gallery/`.
 
 ---

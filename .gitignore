@@ -18,10 +18,14 @@ out/
 next-env.d.ts
 *.tsbuildinfo
 
-# Generated data, never commit
+# Generated data, never commit. Evaluation results are the exception — they are a
+# graded deliverable, so the JSON and the generated report are kept in the repo.
 app/backend/storage/
 app/backend/demo_corpus/
-evaluation/results/
+evaluation/results/*
+!evaluation/results/
+!evaluation/results/*.json
+!evaluation/results/*.md
 
 # OS and editors
 .DS_Store
@@ -38,3 +42,8 @@ Thumbs.db
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
+
+# Media work files from building the demo
+*.webm
+*.wav
+_frame_*.jpg

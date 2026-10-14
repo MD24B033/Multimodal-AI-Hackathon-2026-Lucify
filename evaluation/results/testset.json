@@ -1,0 +1,114 @@
+[
+  {
+    "question": "What output would a perceptron have if it had no inputs?",
+    "expected_behavior": "answerable",
+    "reference_answer": "If a perceptron had no inputs, its weighted sum would always be zero, so it would output 1 when the bias b\u202f>\u202f0 and 0 when b\u202f\u2264\u202f0, i.e., a fixed value independent of any input.",
+    "ground_truth_unit_ids": [
+      "f88e94ae-4f77-488b-89e9-c646e144fb91"
+    ],
+    "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 14",
+    "modality": "text"
+  },
+  {
+    "question": "Why are activation functions important in neural networks according to the slide?",
+    "expected_behavior": "answerable",
+    "reference_answer": "Activation functions are important because they introduce non-linearities into the network, allowing it to approximate arbitrarily complex functions, whereas linear activation functions only produce linear decision boundaries regardless of network size.",
+    "ground_truth_unit_ids": [
+      "b2599d0c-69f8-48bd-9d2c-a58caf1ad713"
+    ],
+    "ground_truth_locator": "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 24",
+    "modality": "figure"
+  },
+  {
+    "question": "What does the symbol \u03c1C represent in the context of the given equations?",
+    "expected_behavior": "answerable",
+    "reference_answer": "\u03c1C is the gradient vector that relates changes in the variable v to changes in the function C; it can be thought of as a single vector defined in the notation.",
+    "ground_truth_unit_ids": [
+      "36ee12f9-2507-41b2-badb-35b9b2e04ca2"
+    ],
+    "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 26",
+    "modality": "text"
+  },
+  {
+    "question": "How many neurons are in the input layer of the neural network used for recognizing individual handwritten digits, and why?",
+    "expected_behavior": "answerable",
+    "reference_answer": "The input layer contains 784 neurons because each input image is 28 by 28 pixels, giving 28\u202f\u00d7\u202f28\u202f=\u202f784 input pixel values.",
+    "ground_truth_unit_ids": [
+      "91847c1c-e24f-4a43-91de-942604f7d89a"
+    ],
+    "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 21",
+    "modality": "text"
+  },
+  {
+    "question": "What type of machine\u2011learning problem is Mean Squared Error loss used for, and how is it computed in TensorFlow?",
+    "expected_behavior": "answerable",
+    "reference_answer": "MSE loss is used for regression models that output continuous real numbers. It is computed as the average of the squared differences between the actual values y and the predicted values, e.g., in TensorFlow with `loss = tf.reduce_mean(tf.square(tf.subtract(y, predicted)))` or `loss = tf.keras.losses.MSE(y, predicted)`.",
+    "ground_truth_unit_ids": [
+      "66c91480-f5f3-4834-b563-f689e3667bfe"
+    ],
+    "ground_truth_locator": "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 49",
+    "modality": "figure"
+  },
+  {
+    "question": "What equation describes how a perceptron computes its output \u0177 during forward propagation, and how can it be expressed using vector notation?",
+    "expected_behavior": "answerable",
+    "reference_answer": "The perceptron output is given by \u0177 = g( w\u2080 + \u03a3\u1d62\u208c\u2081\u1d50 x\u1d62 w\u1d62 ), which can also be written in vector form as \u0177 = g( w\u2080 + X\u1d40W ), where X = [x\u2081; \u2026; x\u2098] and W = [w\u2081; \u2026; w\u2098].",
+    "ground_truth_unit_ids": [
+      "57fb05fa-488d-4624-8f45-765fd6609020"
+    ],
+    "ground_truth_locator": "MIT 6.S191 Lecture 1 recording \u2014 14:15",
+    "modality": "figure"
+  },
+  {
+    "question": "What is the main focus of the book and what will readers be able to do after completing it?",
+    "expected_behavior": "answerable",
+    "reference_answer": "The book aims to help readers master the core concepts of neural networks, including modern deep learning techniques, so that after working through it they will have written code using neural networks and deep learning to solve complex pattern recognition problems and have a foundation to apply these methods to their own problems.",
+    "ground_truth_unit_ids": [
+      "e91325dc-8278-41ac-8067-06bcbef2ae96"
+    ],
+    "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 5",
+    "modality": "text"
+  },
+  {
+    "question": "What is the title text displayed on the slide described in the excerpt?",
+    "expected_behavior": "answerable",
+    "reference_answer": "The title text reads \"Why Deep Learning and Why Now?\" in white font against a solid blue background.",
+    "ground_truth_unit_ids": [
+      "8ed1044f-7490-4a49-aab0-98a509e09897"
+    ],
+    "ground_truth_locator": "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 13",
+    "modality": "figure"
+  },
+  {
+    "question": "Can you explain how the attention mechanism works in transformer models and how it differs from traditional feedforward networks?",
+    "expected_behavior": "off_material",
+    "reference_answer": null,
+    "ground_truth_unit_ids": [],
+    "ground_truth_locator": "",
+    "modality": "text"
+  },
+  {
+    "question": "What are the best practices for hyperparameter optimization using Bayesian methods for deep neural networks?",
+    "expected_behavior": "off_material",
+    "reference_answer": null,
+    "ground_truth_unit_ids": [],
+    "ground_truth_locator": "",
+    "modality": "text"
+  },
+  {
+    "question": "How does reinforcement learning integrate with deep neural networks, and could you give an example of a policy gradient algorithm?",
+    "expected_behavior": "off_material",
+    "reference_answer": null,
+    "ground_truth_unit_ids": [],
+    "ground_truth_locator": "",
+    "modality": "text"
+  },
+  {
+    "question": "Could you provide a detailed overview of generative adversarial networks (GANs) and how they are trained?",
+    "expected_behavior": "off_material",
+    "reference_answer": null,
+    "ground_truth_unit_ids": [],
+    "ground_truth_locator": "",
+    "modality": "text"
+  }
+]
