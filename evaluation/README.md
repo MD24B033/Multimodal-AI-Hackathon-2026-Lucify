@@ -20,8 +20,18 @@ cd evaluation
 python -m venv .venv
 .venv/Scripts/activate
 pip install -r requirements.txt
-export GROQ_API_KEY=gsk_...
+
+export GROQ_API_KEY=gsk_...          # the judge calls Groq directly
+export ACCESS_KEY=your_app_key       # same key you sign in with; the app requires it
 ```
+
+`ACCESS_KEY` must be one of the app's `ACCESS_KEYS`. Without it every call to the app
+returns 401. If the app runs with `ACCESS_KEYS` empty it is unauthenticated and the
+variable can be omitted.
+
+Setting `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` as well makes the harness
+share the app's per-minute token budget instead of competing with it for the same Groq
+quota — worth doing on a free tier.
 
 ## Running
 
@@ -30,6 +40,10 @@ Start the app first, then:
 ```bash
 python run_eval.py --course "Deep Learning Foundations"
 ```
+
+A run takes a while on the free tier: the app is capped at 8,000 tokens a minute, and the
+harness waits on it rather than overrunning it. Pass `--testset results/testset.json` to
+reuse a previously built test set instead of paying to rebuild it.
 
 Useful flags:
 

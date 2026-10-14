@@ -9,6 +9,20 @@ per-topic learner model.
 Every answer cites the exact page, slide or video timestamp it came from, and anything the uploaded
 material does not cover is declined rather than guessed.
 
+## Try it
+
+| | |
+|---|---|
+| **Live app** | https://lucify-tau.vercel.app |
+| **API** | https://multimodal-ai-hackathon-2026-lucify-production.up.railway.app/health |
+| **Demo video** | [docs/gallery/lucify_final_demo.mp4](docs/gallery/lucify_final_demo.mp4) — 5:31, narrated |
+| **Screens** | [docs/GALLERY.md](docs/GALLERY.md) |
+| **Evaluation results** | [evaluation/results/RESULTS.md](../evaluation/results/RESULTS.md) |
+
+The live app needs an access key — there is no signup. It is deployed on free Railway and
+Neon tiers, so access is limited to pre-shared keys to bound who can spend those resources.
+Ask for one, or run it locally with the setup below.
+
 ## What it does
 
 - **Multimodal ingestion** — PDFs, slide decks, DOCX, video, audio and lecture URLs, with no manual
