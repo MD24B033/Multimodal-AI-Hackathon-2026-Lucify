@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 210" width="700" height="210" role="img" aria-label="Lucify logo states">
+  <title>Lucify — logo states</title>
+
+  <defs>
+    <filter id="vsoft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+  </defs>
+
+  <rect width="700" height="210" fill="#ffffff"/>
+
+  <g transform="translate(20 24)">
+    <rect width="150" height="130" rx="22" fill="#f7f5f2" stroke="#0b0b0d" stroke-opacity="0.12"/>
+    <g transform="translate(43 26) scale(1.05)">
+      <g stroke="#0b0b0d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" fill="none">
+        <path d="M32 56 5 46V22l27 10Z"/>
+        <path d="M32 56 59 46V22L32 32Z"/>
+        <path d="M32 32v24" stroke-width="2.2"/>
+      </g>
+      <g>
+        <g stroke="#ff8a3d" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" fill="none">
+          <path d="M32 6c-8-1.6-14.5 3-14.5 9.4-4.4 1.5-4.4 8.7 0 11 1.2 5 7.3 6.7 14.5 5.7Z"/>
+          <path d="M32 6c8-1.6 14.5 3 14.5 9.4 4.4 1.5 4.4 8.7 0 11-1.2 5-7.3 6.7-14.5 5.7Z"/>
+        </g>
+        <g stroke="#ff8a3d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <path d="M25 11v5h-5.6"/>
+          <path d="M27.5 30h-5v-5.6"/>
+          <path d="M39 11v5h5.6"/>
+          <path d="M36.5 30h5v-5.6"/>
+        </g>
+        <g fill="#ff8a3d" opacity="0.32">
+          <circle cx="18.9" cy="16.0" r="2.0"/>
+          <circle cx="22.1" cy="24.4" r="1.8"/>
+          <circle cx="45.1" cy="16.0" r="2.0"/>
+          <circle cx="41.9" cy="24.4" r="1.8"/>
+        </g>
+      </g>
+    </g>
+    <text x="75" y="154" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#0b0b0d">Rest</text>
+  </g>
+  <g transform="translate(190 24)">
+    <rect width="150" height="130" rx="22" fill="#f7f5f2" stroke="#0b0b0d" stroke-opacity="0.12"/>
+    <g transform="translate(43 26) scale(1.05)">
+      <ellipse cx="32" cy="21" rx="19" ry="15" fill="#ff8a3d" filter="url(#vsoft)" opacity="0.75"/>
+      <g stroke="#0b0b0d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" fill="none">
+        <path d="M32 56 5 46V22l27 10Z"/>
+        <path d="M32 56 59 46V22L32 32Z"/>
+        <path d="M32 32v24" stroke-width="2.2"/>
+      </g>
+      <g transform="translate(-2.24 -1.47) scale(1.07)">
+        <g stroke="#ff8a3d" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" fill="none">
+          <path d="M32 6c-8-1.6-14.5 3-14.5 9.4-4.4 1.5-4.4 8.7 0 11 1.2 5 7.3 6.7 14.5 5.7Z"/>
+          <path d="M32 6c8-1.6 14.5 3 14.5 9.4 4.4 1.5 4.4 8.7 0 11-1.2 5-7.3 6.7-14.5 5.7Z"/>
+        </g>
+        <g stroke="#ff8a3d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <path d="M25 11v5h-5.6"/>
+          <path d="M27.5 30h-5v-5.6"/>
+          <path d="M39 11v5h5.6"/>
+          <path d="M36.5 30h5v-5.6"/>
+        </g>
+        <g fill="#ff8a3d" opacity="0.5">
+          <circle cx="18.9" cy="16.0" r="2.0"/>
+          <circle cx="22.1" cy="24.4" r="1.8"/>
+          <circle cx="45.1" cy="16.0" r="2.0"/>
+          <circle cx="41.9" cy="24.4" r="1.8"/>
+        </g>
+      </g>
+    </g>
+    <text x="75" y="154" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#0b0b0d">Brain pulse</text>
+  </g>
+  <g transform="translate(360 24)">
+    <rect width="150" height="130" rx="22" fill="#f7f5f2" stroke="#0b0b0d" stroke-opacity="0.12"/>
+    <g transform="translate(43 26) scale(1.05)">
+      <g stroke="#0b0b0d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" fill="none">
+        <path d="M32 56 5 46V22l27 10Z"/>
+        <g transform="translate(28.16 0) scale(0.12 1)">
+          <path d="M32 56 59 46V22L32 32Z"/>
+        </g>
+        <path d="M32 32v24" stroke-width="2.2"/>
+      </g>
+      <g>
+        <g stroke="#ff8a3d" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" fill="none">
+          <path d="M32 6c-8-1.6-14.5 3-14.5 9.4-4.4 1.5-4.4 8.7 0 11 1.2 5 7.3 6.7 14.5 5.7Z"/>
+          <path d="M32 6c8-1.6 14.5 3 14.5 9.4 4.4 1.5 4.4 8.7 0 11-1.2 5-7.3 6.7-14.5 5.7Z"/>
+        </g>
+        <g stroke="#ff8a3d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <path d="M25 11v5h-5.6"/>
+          <path d="M27.5 30h-5v-5.6"/>
+          <path d="M39 11v5h5.6"/>
+          <path d="M36.5 30h5v-5.6"/>
+        </g>
+        <g fill="#ff8a3d" opacity="0.32">
+          <circle cx="18.9" cy="16.0" r="2.0"/>
+          <circle cx="22.1" cy="24.4" r="1.8"/>
+          <circle cx="45.1" cy="16.0" r="2.0"/>
+          <circle cx="41.9" cy="24.4" r="1.8"/>
+        </g>
+      </g>
+    </g>
+    <text x="75" y="154" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#0b0b0d">Book flip</text>
+  </g>
+  <g transform="translate(530 24)">
+    <rect width="150" height="130" rx="22" fill="#f7f5f2" stroke="#0b0b0d" stroke-opacity="0.12"/>
+    <g transform="translate(43 26) scale(1.05)">
+      <g stroke="#0b0b0d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" fill="none">
+        <path d="M32 56 5 46V22l27 10Z"/>
+        <path d="M32 56 59 46V22L32 32Z"/>
+        <path d="M32 32v24" stroke-width="2.2"/>
+      </g>
+      <g>
+        <g stroke="#ff8a3d" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" fill="none">
+          <path d="M32 6c-8-1.6-14.5 3-14.5 9.4-4.4 1.5-4.4 8.7 0 11 1.2 5 7.3 6.7 14.5 5.7Z"/>
+          <path d="M32 6c8-1.6 14.5 3 14.5 9.4 4.4 1.5 4.4 8.7 0 11-1.2 5-7.3 6.7-14.5 5.7Z"/>
+        </g>
+        <g stroke="#ff8a3d" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <path d="M25 11v5h-5.6"/>
+          <path d="M27.5 30h-5v-5.6"/>
+          <path d="M39 11v5h5.6"/>
+          <path d="M36.5 30h5v-5.6"/>
+        </g>
+        <g fill="#ff8a3d" opacity="1">
+          <circle cx="18.9" cy="16.0" r="2.0"/>
+          <circle cx="22.1" cy="24.4" r="1.8"/>
+          <circle cx="45.1" cy="16.0" r="2.0"/>
+          <circle cx="41.9" cy="24.4" r="1.8"/>
+        </g>
+      </g>
+    </g>
+    <text x="75" y="154" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#0b0b0d">Tech connection</text>
+  </g>
+</svg>

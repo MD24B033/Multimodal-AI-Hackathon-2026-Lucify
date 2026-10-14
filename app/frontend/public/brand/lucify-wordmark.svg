@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 96" width="380" height="96" role="img" aria-label="Lucify">
+  <title>Lucify</title>
+
+  <g transform="translate(6 6) scale(1.31)">
+    <g stroke="#0b0b0d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" fill="none">
+      <path d="M32 56 5 46V22l27 10Z"/>
+      <path d="M32 56 59 46V22L32 32Z"/>
+      <path d="M32 32v24" stroke-width="2.2"/>
+    </g>
+    <g>
+      <g stroke="#ff8a3d" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" fill="none">
+        <path d="M32 6c-8-1.6-14.5 3-14.5 9.4-4.4 1.5-4.4 8.7 0 11 1.2 5 7.3 6.7 14.5 5.7Z"/>
+        <path d="M32 6c8-1.6 14.5 3 14.5 9.4 4.4 1.5 4.4 8.7 0 11-1.2 5-7.3 6.7-14.5 5.7Z"/>
+      </g>
+      <g stroke="#ff8a3d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M25 11v5h-5.6"/>
+        <path d="M27.5 30h-5v-5.6"/>
+        <path d="M39 11v5h5.6"/>
+        <path d="M36.5 30h5v-5.6"/>
+      </g>
+      <g fill="#ff8a3d" opacity="0.32">
+        <circle cx="18.9" cy="16.0" r="2.0"/>
+        <circle cx="22.1" cy="24.4" r="1.8"/>
+        <circle cx="45.1" cy="16.0" r="2.0"/>
+        <circle cx="41.9" cy="24.4" r="1.8"/>
+      </g>
+    </g>
+  </g>
+
+  <text x="118" y="62" font-family="Georgia, 'Times New Roman', serif" font-size="46" letter-spacing="-0.5" fill="#0b0b0d">Lucify</text>
+</svg>

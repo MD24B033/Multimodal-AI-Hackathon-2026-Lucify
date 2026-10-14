@@ -1,0 +1,32 @@
+# Runtime dependencies for the API. The evaluation harness brings its own
+# (evaluation/requirements.txt) and must not be installed on the deployed service.
+
+# Torch ships a CUDA build by default, which is several gigabytes and useless on a
+# CPU host. The CPU wheel index keeps the image small enough to deploy.
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+fastapi==0.142.2
+uvicorn==0.54.0
+websockets==16.1.1
+python-multipart==0.0.20
+pydantic==2.13.5
+pydantic-settings==2.15.0
+python-dotenv==1.2.4
+
+SQLAlchemy==2.1.3
+alembic==1.20.0
+psycopg[binary]==3.3.6
+pgvector==0.5.0
+
+docling==2.134.0
+pypdf==6.1.3
+pypdfium2==4.30.0
+imageio-ffmpeg==0.6.0
+yt-dlp==2026.9.26
+pillow==12.3.0
+
+sentence-transformers>=3.0
+torch==2.14.1
+numpy>=2,<3
+
+httpx==0.28.1

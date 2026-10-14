@@ -1,0 +1,40 @@
+# Secrets
+.env
+.env.local
+*.env
+!*.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Node
+node_modules/
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# Generated data, never commit
+app/backend/storage/
+app/backend/demo_corpus/
+evaluation/results/
+
+# OS and editors
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
+
+# Deploy platforms
+.vercel/
+.railway/
+
+# Python tooling
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
