@@ -408,6 +408,12 @@ def course_channel(course_id) -> str:
     return f"course:{course_id}"
 
 
+def ingestion_feed_channel() -> str:
+    """Every job reports here as well, so the dock can show ingestion from any page
+    without knowing which course is busy."""
+    return "ingestion:feed"
+
+
 def publish_progress(channel: str, payload: dict[str, Any]) -> None:
     enriched = {**payload, "at": time.time()}
     get_broker().publish(channel, enriched)

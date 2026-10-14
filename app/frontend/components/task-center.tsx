@@ -15,6 +15,12 @@ import {
 
 import { useSession } from "@/components/session-context";
 import { API_BASE, get, post, readAccessKey } from "@/lib/api";
+import {
+  describeIngestion,
+  formatEta,
+  useIngestionFeed,
+  type IngestionEvent,
+} from "@/lib/use-ingestion-events";
 
 export type GenerationTask = {
   id: string;
@@ -29,6 +35,13 @@ export type GenerationTask = {
   acknowledged: boolean;
   created_at: string;
   finished_at: string | null;
+};
+
+type ToastItem = {
+  id: string;
+  label: string;
+  ok: boolean;
+  error: string | null;
 };
 
 type TaskValue = {
@@ -49,8 +62,9 @@ const TaskContext = createContext<TaskValue | null>(null);
 export function TaskProvider({ children }: { children: ReactNode }) {
   const { student } = useSession();
   const [tasks, setTasks] = useState<GenerationTask[]>([]);
-  const [toasts, setToasts] = useState<GenerationTask[]>([]);
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
   const announced = useRef<Set<string>>(new Set());
+  const ingestion = useIngestionFeed(Boolean(student));
 
   const refresh = useCallback(async () => {
     if (!student) return;
@@ -68,12 +82,35 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   const announce = useCallback((task: GenerationTask) => {
     if (announced.current.has(task.id)) return;
     announced.current.add(task.id);
-    setToasts((current) => [...current, task]);
+    setToasts((current) => [
+      ...current,
+      { id: task.id, label: task.label, ok: task.status === "succeeded", error: task.error },
+    ]);
     window.setTimeout(() => {
       setToasts((current) => current.filter((item) => item.id !== task.id));
       void post(`/api/tasks/${task.id}/acknowledge`).catch(() => undefined);
     }, 9000);
   }, []);
+
+  // Ingestion finishing deserves the same notice as a generation task, wherever you are.
+  useEffect(() => {
+    for (const done of ingestion.finished) {
+      const id = `ingest:${done.source_id}`;
+      if (announced.current.has(id)) continue;
+      announced.current.add(id);
+      setToasts((current) => [
+        ...current,
+        {
+          id,
+          label: `${done.title} · ingested`,
+          ok: done.status !== "failed",
+          error: done.error,
+        },
+      ]);
+      window.setTimeout(() => setToasts((current) => current.filter((item) => item.id !== id)), 9000);
+      ingestion.dismiss(done.source_id);
+    }
+  }, [ingestion]);
 
   useEffect(() => {
     if (!student) return;
@@ -128,22 +165,34 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       {children}
       <div className="pointer-events-none fixed right-4 top-4 z-[90] flex w-[min(21rem,calc(100vw-2rem))] flex-col gap-2">
         <Toasts toasts={toasts} onDismiss={(id) => setToasts((c) => c.filter((t) => t.id !== id))} />
-        <TaskDock active={active} />
+        <TaskDock active={active} ingesting={ingestion.jobs} />
       </div>
     </TaskContext.Provider>
   );
 }
 
-function TaskDock({ active }: { active: GenerationTask[] }) {
+function TaskDock({
+  active,
+  ingesting,
+}: {
+  active: GenerationTask[];
+  ingesting: IngestionEvent[];
+}) {
   const [hidden, setHidden] = useState<string[]>([]);
+  const everything = [
+    ...active.map((task) => task.id),
+    ...ingesting.map((job) => `ingest:${job.source_id}`),
+  ];
   const showing = active.filter((task) => !hidden.includes(task.id));
+  const showingIngests = ingesting.filter((job) => !hidden.includes(`ingest:${job.source_id}`));
 
   // Anything newly started is worth showing again, even after an earlier dismissal.
   useEffect(() => {
-    setHidden((current) => current.filter((id) => active.some((task) => task.id === id)));
-  }, [active]);
+    setHidden((current) => current.filter((id) => everything.includes(id)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [everything.join("|")]);
 
-  if (showing.length === 0) return null;
+  if (showing.length === 0 && showingIngests.length === 0) return null;
 
   return (
     <>
@@ -158,12 +207,36 @@ function TaskDock({ active }: { active: GenerationTask[] }) {
             type="button"
             aria-label="Hide background work"
             className="btn btn-ghost px-1 py-0.5"
-            onClick={() => setHidden(active.map((task) => task.id))}
+            onClick={() => setHidden(everything)}
           >
             <X className="h-3 w-3" />
           </button>
         </div>
-        <ul className="space-y-2">
+        <ul className="space-y-2.5">
+          {showingIngests.map((job) => {
+            const eta = formatEta(job.eta_seconds);
+            return (
+              <li key={job.source_id} className="text-xs">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-[var(--iris)]" />
+                  <span className="min-w-0 flex-1 truncate font-medium">{job.title}</span>
+                  <span className="shrink-0 text-[10px] opacity-70">
+                    {Math.round((job.progress ?? 0) * 100)}%
+                  </span>
+                </div>
+                <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-[var(--line)]">
+                  <div
+                    className="h-full rounded-full bg-[var(--iris)] transition-[width] duration-500"
+                    style={{ width: `${Math.max(2, Math.round((job.progress ?? 0) * 100))}%` }}
+                  />
+                </div>
+                <p className="mt-1 truncate text-[10px] text-[var(--ink-soft)]">
+                  {describeIngestion(job)}
+                  {eta ? ` · ${eta} left` : ""}
+                </p>
+              </li>
+            );
+          })}
           {showing.map((task) => (
             <li key={task.id} className="flex items-center gap-2 text-xs">
               <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-[var(--iris)]" />
@@ -186,7 +259,7 @@ function Toasts({
   toasts,
   onDismiss,
 }: {
-  toasts: GenerationTask[];
+  toasts: ToastItem[];
   onDismiss: (id: string) => void;
 }) {
   return (
@@ -200,15 +273,13 @@ function Toasts({
             transition={{ type: "spring", stiffness: 420, damping: 32 }}
             className="toast pointer-events-auto flex items-start gap-2.5 p-3.5"
           >
-            {task.status === "succeeded" ? (
+            {task.ok ? (
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--mint)]" />
             ) : (
               <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-[var(--rose)]" />
             )}
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium">
-                {task.status === "succeeded" ? "Ready" : "Could not finish"}
-              </p>
+              <p className="text-sm font-medium">{task.ok ? "Ready" : "Could not finish"}</p>
               <p className="mt-0.5 truncate text-xs text-[var(--ink-soft)]">{task.label}</p>
               {task.error ? (
                 <p className="mt-1 text-[11px] leading-relaxed text-[var(--rose)]">{task.error}</p>

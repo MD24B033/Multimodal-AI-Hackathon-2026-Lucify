@@ -19,7 +19,12 @@ from app.db.models import (
     SourceStatus,
 )
 from app.ingestion.types import RawUnit
-from app.realtime import course_channel, publish_progress, source_channel
+from app.realtime import (
+    course_channel,
+    ingestion_feed_channel,
+    publish_progress,
+    source_channel,
+)
 from app.retrieval.embedder import get_embedder
 
 logger = logging.getLogger(__name__)
@@ -90,7 +95,10 @@ class JobReporter:
         if done is None and total is None and not detail:
             merged.pop("done", None)
             merged.pop("total", None)
-        merged.update(detail)
+        # Whatever is being read right now belongs to this stage alone: a later stage
+        # that names nothing must not keep showing the last page it happened to see.
+        merged.pop("item", None)
+        merged.update({key: value for key, value in detail.items() if value is not None})
         self.job.detail = merged
 
         self.session.commit()
@@ -111,6 +119,7 @@ class JobReporter:
             "source_id": str(self.source.id),
             "course_id": str(self.source.course_id),
             "title": self.source.title,
+            "kind": self.source.kind.value,
             "status": self.job.status.value,
             "stage": stage,
             "progress": round(self.job.progress, 4),
@@ -122,6 +131,7 @@ class JobReporter:
         }
         publish_progress(source_channel(self.source.id), payload)
         publish_progress(course_channel(self.source.course_id), payload)
+        publish_progress(ingestion_feed_channel(), payload)
 
 
 def persist_units(
@@ -227,13 +237,14 @@ def run_ingestion(session: Session, source_id: uuid.UUID) -> dict:
         if source.kind in DOCUMENT_KINDS:
             reporter.update("parsing document", 0.1)
 
-            def page_progress(index: int, total: int) -> None:
+            def page_progress(index: int, total: int, item: str | None = None) -> None:
                 reporter.update(
                     "reading pages",
                     0.12 + 0.6 * (index / max(1, total)),
                     done=index,
                     total=total,
                     pages=total,
+                    item=item,
                 )
 
             units, metadata = extract_document(path, source.kind, source.id, progress=page_progress)
@@ -243,18 +254,19 @@ def run_ingestion(session: Session, source_id: uuid.UUID) -> dict:
             if figure_count:
                 reporter.update("reading figures", 0.4, done=0, total=figure_count, figures=figure_count)
 
-                def figure_progress(index: int, total: int) -> None:
+                def figure_progress(index: int, total: int, item: str | None = None) -> None:
                     reporter.update(
                         "reading figures",
                         0.4 + 0.3 * (index / max(1, total)),
                         done=index,
                         total=total,
+                        item=item,
                     )
 
                 units = describe_figures(units, progress=figure_progress)
         else:
-            def media_progress(stage: str, progress: float) -> None:
-                reporter.update(stage, progress)
+            def media_progress(stage: str, progress: float, **detail) -> None:
+                reporter.update(stage, progress, **detail)
 
             reporter.update("extracting audio", 0.1)
             units, metadata = extract_media(path, source.id, progress=media_progress)

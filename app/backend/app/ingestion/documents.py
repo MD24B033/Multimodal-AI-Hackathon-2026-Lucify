@@ -148,7 +148,7 @@ def extract_page_images(
 
     for index, (image_path, page_no) in enumerate(pages):
         if progress is not None:
-            progress(index, len(pages))
+            progress(index, len(pages), f"{'slide' if is_slides else 'page'} {page_no}")
 
         description = describe_page_image(image_path, page_no, is_slides)
         if not description:

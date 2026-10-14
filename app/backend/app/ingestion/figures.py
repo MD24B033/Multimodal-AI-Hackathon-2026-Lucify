@@ -118,7 +118,9 @@ def describe_figures(units: list[RawUnit], progress=None) -> list[RawUnit]:
 
     for index, unit in enumerate(figures):
         if progress is not None:
-            progress(index, len(figures))
+            where = unit.page_no or unit.slide_no
+            place = f" on {'slide' if unit.slide_no else 'page'} {where}" if where else ""
+            progress(index, len(figures), f"figure {index + 1}{place}")
 
         data_url = _encode_image(Path(unit.image_path))
         if data_url is None:

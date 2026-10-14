@@ -12,6 +12,7 @@ from app.api.routes import (
     auth as auth_routes,
     chat,
     courses,
+    ingestion as ingestion_routes,
     learner,
     media,
     memory,
@@ -149,6 +150,7 @@ protected = [Depends(current_identity)]
 app.include_router(auth_routes.router)
 app.include_router(profiles.router, dependencies=protected)
 app.include_router(courses.router, dependencies=protected)
+app.include_router(ingestion_routes.router, dependencies=protected)
 app.include_router(chat.router, dependencies=protected)
 app.include_router(assessments.router, dependencies=protected)
 app.include_router(learner.router, dependencies=protected)

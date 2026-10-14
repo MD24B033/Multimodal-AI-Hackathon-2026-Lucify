@@ -172,7 +172,7 @@ def transcribe_media(audio_path: Path, language: str | None = None, progress=Non
 
     for index, (chunk_path, offset) in enumerate(chunks):
         if progress is not None:
-            progress(index, len(chunks))
+            progress(index, len(chunks), f"{format_timestamp(offset)} onwards")
         try:
             payload = client.transcribe(chunk_path, language=language)
         except GroqError:
@@ -250,7 +250,7 @@ def describe_keyframes(frames: list[tuple[Path, float]], progress=None) -> list[
 
     for index, (path, timestamp) in enumerate(frames):
         if progress is not None:
-            progress(index, len(frames))
+            progress(index, len(frames), f"frame at {format_timestamp(timestamp)}")
 
         data_url = _encode_image(path)
         if data_url is None:
@@ -313,9 +313,15 @@ def extract_media(
     extract_audio(path, audio_path)
     duration = probe_duration(path)
 
-    def transcription_progress(index: int, total: int) -> None:
+    def transcription_progress(index: int, total: int, item: str | None = None) -> None:
         if progress:
-            progress("transcribing", 0.25 + 0.4 * (index / max(1, total)))
+            progress(
+                "transcribing",
+                0.25 + 0.4 * (index / max(1, total)),
+                done=index,
+                total=total,
+                item=item,
+            )
 
     segments = transcribe_media(audio_path, language=language, progress=transcription_progress)
     units = window_transcript(segments)
@@ -324,9 +330,15 @@ def extract_media(
     if with_keyframes and _has_video_stream(path):
         frames = extract_keyframes(path, source_id)
 
-        def keyframe_progress(index: int, total: int) -> None:
+        def keyframe_progress(index: int, total: int, item: str | None = None) -> None:
             if progress:
-                progress("reading slides", 0.7 + 0.25 * (index / max(1, total)))
+                progress(
+                    "reading slides",
+                    0.7 + 0.25 * (index / max(1, total)),
+                    done=index,
+                    total=total,
+                    item=item,
+                )
 
         keyframe_units = describe_keyframes(frames, progress=keyframe_progress)
 

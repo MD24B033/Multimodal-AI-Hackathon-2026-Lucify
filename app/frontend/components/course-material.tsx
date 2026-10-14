@@ -18,7 +18,7 @@ import { useSession } from "@/components/session-context";
 import { Blank, Chip, Notice, Panel, Progress, SectionHead, Spinner } from "@/components/ui";
 import { del, get, post, upload } from "@/lib/api";
 import type { FlowMap as FlowMapData, Source, Topic } from "@/lib/types";
-import { useIngestionEvents } from "@/lib/use-ingestion-events";
+import { describeIngestion, formatEta, useIngestionEvents } from "@/lib/use-ingestion-events";
 
 const ACCEPTED = ".pdf,.pptx,.docx,.html,.mp4,.mkv,.mov,.webm,.mp3,.wav,.m4a";
 
@@ -27,15 +27,6 @@ function kindIcon(kind: string) {
   if (kind === "youtube") return <MonitorPlay className={className} />;
   if (kind === "video" || kind === "audio") return <Video className={className} />;
   return <FileText className={className} />;
-}
-
-function formatEta(seconds: number | null | undefined): string | null {
-  if (typeof seconds !== "number" || seconds <= 0) return null;
-  if (seconds < 60) return `${Math.round(seconds)}s`;
-  const minutes = Math.round(seconds / 60);
-  if (minutes < 60) return `${minutes} min`;
-  const hours = Math.floor(minutes / 60);
-  return `${hours}h ${minutes % 60}m`;
 }
 
 export function CourseMaterial({ courseId }: { courseId: string }) {
@@ -194,12 +185,7 @@ export function CourseMaterial({ courseId }: { courseId: string }) {
               const progress = live?.progress ?? source.job?.progress ?? 0;
               const failure = live?.error ?? source.error;
 
-              const done = live?.detail?.done;
-              const total = live?.detail?.total;
-              const counted =
-                typeof done === "number" && typeof total === "number" && total > 0
-                  ? `${done} of ${total}`
-                  : null;
+              const doing = describeIngestion(live);
               const eta = formatEta(live?.eta_seconds);
 
               return (
@@ -234,8 +220,11 @@ export function CourseMaterial({ courseId }: { courseId: string }) {
                         <Progress value={progress} label={stage} />
                         <p className="mt-1 flex flex-wrap gap-x-2 text-[11px] text-[var(--ink-soft)]">
                           <span>{Math.round(progress * 100)}%</span>
-                          {counted ? <span>· {counted}</span> : null}
+                          {doing ? <span>· {doing}</span> : null}
                           {eta ? <span>· {eta} left</span> : null}
+                        </p>
+                        <p className="mt-0.5 text-[10px] text-[var(--ink-faint)]">
+                          Keeps going if you leave this page.
                         </p>
                       </div>
                     ) : null}
