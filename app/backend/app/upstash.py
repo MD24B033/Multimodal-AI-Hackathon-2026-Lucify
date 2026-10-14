@@ -103,6 +103,22 @@ class SharedTokenBudget:
             return False, remaining_window
         return True, remaining_window
 
+    def refund(self, tokens: int) -> None:
+        """Give back the difference between what a call reserved and what it spent.
+
+        A reservation has to assume the completion runs to max_tokens, so a chat turn
+        books around 4,000 tokens and typically spends half that. Without this the
+        unspent half stays booked for the rest of the minute, and on an 8,000 token
+        minute that is enough to push the next question into the following window --
+        which is most of what the 58 second evaluation median was measuring.
+        """
+        if tokens <= 0:
+            return
+        try:
+            self.client.command("DECRBY", self._key(), tokens)
+        except Exception:
+            logger.debug("Could not refund unused tokens", exc_info=True)
+
     def usage(self) -> int:
         try:
             value = self.client.command("GET", self._key())

@@ -285,6 +285,10 @@ class GroqClient:
             f"Groq request failed after {settings.max_retries} attempts: {last_error}"
         )
 
+    def _refund_shared_budget(self, unused: int) -> None:
+        if self.shared_budget is not None and unused > 0:
+            self.shared_budget.refund(unused)
+
     def _await_shared_budget(self, tokens: int) -> None:
         """Every process pointing at the same Upstash database draws from one budget,
         so the API and the evaluation harness cannot each assume the whole allowance."""
@@ -394,6 +398,7 @@ class GroqClient:
             completion_tokens=int(usage_body.get("completion_tokens", 0)),
         )
         self.limiter.reconcile(estimated, usage.total or estimated)
+        self._refund_shared_budget(estimated - (usage.total or estimated))
 
         completion = Completion(text=text, model=model, usage=usage, task=task, raw=body)
         if use_cache and temperature <= 0.3 and text:
