@@ -75,10 +75,12 @@ export default function LoginPage() {
               <KeyRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--ink-faint)]" />
               <input
                 className="input pl-9 font-mono"
+                type="password"
                 placeholder="your-key-here"
                 value={key}
                 autoFocus
                 spellCheck={false}
+                autoComplete="off"
                 onChange={(event) => setKey(event.target.value)}
                 onKeyDown={(event) => event.key === "Enter" && submit()}
               />

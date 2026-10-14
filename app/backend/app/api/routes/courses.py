@@ -204,6 +204,9 @@ def upload_source(
         content_hash=digest,
     )
     session.add(source)
+    # The job's foreign key needs the source row to exist first. Nothing declares the
+    # relationship, so SQLAlchemy cannot order these two inserts on its own.
+    session.flush()
     session.add(IngestionJob(source_id=source_id))
     session.commit()
 
