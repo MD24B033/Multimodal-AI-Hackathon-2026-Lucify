@@ -15,9 +15,8 @@ material does not cover is declined rather than guessed.
 |---|---|
 | **Live app** | https://lucify-tau.vercel.app |
 | **API** | https://multimodal-ai-hackathon-2026-lucify-production.up.railway.app/health |
-| **Demo video** | [docs/gallery/lucify_final_demo.mp4](docs/gallery/lucify_final_demo.mp4) — 5:31, narrated |
-| **Screens** | [docs/GALLERY.md](docs/GALLERY.md) |
-| **Evaluation results** | [evaluation/results/RESULTS.md](../evaluation/results/RESULTS.md) |
+| **Demo video** | YouTube: _add link_ · in-repo copy: [docs/demo/lucify_demo.mp4](docs/demo/lucify_demo.mp4) (5:31, narrated) |
+| **Evaluation results** | [../evaluation/results/](../evaluation/results/) |
 
 The live app needs an access key — there is no signup. It is deployed on free Railway and
 Neon tiers, so access is limited to pre-shared keys to bound who can spend those resources.
@@ -45,15 +44,10 @@ Ask for one, or run it locally with the setup below.
 
 ## Documentation
 
-- [Gallery](docs/GALLERY.md) — annotated screens of the running app
 - [Architecture](docs/ARCHITECTURE.md) — stack, data flow, module map, trade-offs
 - [Grounding method](docs/GROUNDING.md) — how citations are kept honest
 - [Learner model](docs/LEARNER_MODEL.md) — BKT, IRT, spaced repetition, cold start
 - [Evaluation](docs/EVALUATION.md) — methodology, metrics and measured results
-- [Deploying](docs/DEPLOY.md) — Neon, Railway and Vercel, start to finish
-- [Performance](docs/PERFORMANCE.md) — measured latencies and where the time goes
-- [Stack](docs/STACK.md) — what is an API call and what runs locally
-- [File guide](docs/FILE_GUIDE.md) — every file and what it is for
 
 ## Requirements
 

@@ -47,3 +47,18 @@ Thumbs.db
 *.webm
 *.wav
 _frame_*.jpg
+
+# Submission scope: the repository carries the prototype, the four required documents,
+# the evaluation and the demo video. Working notes, extra docs and local tooling stay
+# on disk but out of the repo.
+Track D.pdf
+app/.claude/
+app/frontend/AGENTS.md
+app/frontend/CLAUDE.md
+app/docs/gallery/
+app/docs/DEMO_SCRIPT.md
+app/docs/DEPLOY.md
+app/docs/FILE_GUIDE.md
+app/docs/GALLERY.md
+app/docs/PERFORMANCE.md
+app/docs/STACK.md

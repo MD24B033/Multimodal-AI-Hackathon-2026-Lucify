@@ -444,9 +444,6 @@ the project does not control, so it is opt-in and the key belongs to whoever use
 
 ## Related docs
 
-- `STACK.md` — what is used where, API versus local
-- `GROUNDING.md` — the citation and refusal contract in detail
-- `LEARNER_MODEL.md` — the maths behind mastery and scheduling
-- `PERFORMANCE.md` — measured latencies and the bottleneck analysis
-- `EVALUATION.md` — how the harness works
-- `FILE_GUIDE.md` — every file and what it is for
+- [`GROUNDING.md`](GROUNDING.md) — the citation and refusal contract in detail
+- [`LEARNER_MODEL.md`](LEARNER_MODEL.md) — the maths behind mastery and scheduling
+- [`EVALUATION.md`](EVALUATION.md) — how the harness works, and what the numbers mean
