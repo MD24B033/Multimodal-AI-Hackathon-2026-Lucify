@@ -10,7 +10,7 @@ Multimodal AI Hackathon 2026, Track D.
 |---|---|
 | **Live app** | https://lucify-tau.vercel.app (access key required — there is no signup) |
 | **API health** | https://multimodal-ai-hackathon-2026-lucify-production.up.railway.app/health |
-| **Demo video** | [app/docs/demo/lucify_demo.mp4](app/docs/demo/lucify_demo.mp4) — 8:38, narrated |
+| **Demo video** | [app/docs/demo/lucify_demo.mp4](app/docs/demo/lucify_demo.mp4) — 8:31, narrated |
 | **Evaluation results** | [evaluation/results/RESULTS.md](evaluation/results/RESULTS.md) |
 
 ## Submission contents

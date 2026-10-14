@@ -1,5 +1,5 @@
 LUCIFY — DEMO VOICE-OVER TRANSCRIPT
-Total runtime 08:38.23
+Total runtime 08:31.40
 ========================================================================
 
 [00:00.00 – 00:36.63]  Diagram — architecture
@@ -41,23 +41,23 @@ Ingestion that keeps every source location. Retrieval that refuses when the evid
 [05:31.44 – 06:00.81]  Diagram — notes
 Beyond the tutor, Lucify writes study material for you. Notes come in four formats — a summary, Cornell notes, flashcards, or question and answer — and the scope can be the whole course, one topic, or a single document. Whichever you choose, the notes are written only from retrieved passages, so each set ends with the sources it drew on, the key terms it found, and an honest note about anything your material does not cover.
 
-[06:00.81 – 06:32.04]  Demo clip — notes demo
-(no narration — demo plays)
+[06:00.81 – 06:25.21]  Demo clip — notes demo
+The format is chosen first, then the scope. This set was written earlier: the summary, the key equations it pulled out, and at the end the exact sources behind it, down to the page and the timestamp in the lecture. Generating a new one runs in the background, so you can leave the page while it writes.
 
-[06:32.04 – 06:57.23]  Diagram — planner
+[06:25.21 – 06:50.40]  Diagram — planner
 The planner turns the learner model into a schedule. It takes the exam date and the minutes you can give per day, then weights the plan towards your weakest topics and folds in the spaced-repetition reviews that are already due. Sessions follow the prerequisite order the material implies, and a focus timer tracks what you actually finish, which feeds straight back into the model.
 
-[06:57.23 – 07:11.13]  Demo clip — planner demo
-(no narration — demo plays)
+[06:50.40 – 07:04.30]  Demo clip — planner demo
+Seventeen days to the exam, sixty minutes a day. The plan puts the weakest topics first, keeps prerequisites in order, and schedules the reviews that are due.
 
-[07:11.13 – 07:42.83]  Diagram — memory
+[07:04.30 – 07:36.00]  Diagram — memory
 Lucify also builds a picture of how you learn. Preferences, goals and recurring confusions are picked up from what you type, from assessment results, and from feedback you give directly. This is done with rules rather than an extra model call, so it costs nothing to maintain. It is injected into the tutor prompt — and crucially, all of it is visible on one page, where you can edit, pin, archive or delete any entry. Nothing is remembered that you cannot see.
 
-[07:42.83 – 08:00.20]  Demo clip — memory demo
-(no narration — demo plays)
+[07:36.00 – 07:53.37]  Demo clip — memory demo
+Everything it remembers is listed in plain language, with where it came from. Each entry can be pinned, edited, archived or deleted. Insights then show mastery, the weakest topics, and what to study next.
 
-[08:00.20 – 08:27.30]  Diagram — profiles
+[07:53.37 – 08:20.47]  Diagram — profiles
 Finally, one key gives you profiles — separate workspaces, so coursework and side projects do not mix, each course staying its own knowledge base. Settings hold the theme, the optional Sarvam voice key, and the controls over that memory. That is Lucify: ingestion that keeps every source location, retrieval that refuses when the evidence is thin, and a learner model that keeps moving as you study.
 
-[08:27.30 – 08:38.23]  Demo clip — settings demo
-(no narration — demo plays)
+[08:20.47 – 08:31.40]  Demo clip — settings demo
+Profiles keep coursework and side projects apart, and the instance panel shows exactly which models and limits this deployment runs on.
