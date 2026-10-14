@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.db.models import ContentUnit, Modality, Source, UnitTopic
 from app.ingestion.types import format_timestamp
+from app.llm import timing
 from app.retrieval.embedder import get_embedder
 
 
@@ -131,7 +132,8 @@ def search(
     candidates = candidates or settings.retrieval_candidates
 
     embedder = get_embedder()
-    query_vector = embedder.embed_query(query)
+    with timing.stage("embed_ms"):
+        query_vector = embedder.embed_query(query)
 
     def apply_filters(statement):
         statement = statement.where(ContentUnit.course_id == course_id)
@@ -152,20 +154,24 @@ def search(
     vector_statement = apply_filters(select(ContentUnit, distance))
     if vector_statement is None:
         return RetrievalResult(query=query)
-    vector_rows = session.execute(
-        vector_statement.where(ContentUnit.embedding.isnot(None)).order_by(distance).limit(candidates)
-    ).all()
+    with timing.stage("vector_search_ms"):
+        vector_rows = session.execute(
+            vector_statement.where(ContentUnit.embedding.isnot(None))
+            .order_by(distance)
+            .limit(candidates)
+        ).all()
 
     ts_query = func.websearch_to_tsquery("english", query)
     rank = func.ts_rank_cd(ContentUnit.search_vector, ts_query).cast(Float).label("rank")
     text_statement = apply_filters(select(ContentUnit, rank))
     text_rows = []
     if text_statement is not None:
-        text_rows = session.execute(
-            text_statement.where(ContentUnit.search_vector.op("@@")(ts_query))
-            .order_by(rank.desc())
-            .limit(candidates)
-        ).all()
+        with timing.stage("lexical_search_ms"):
+            text_rows = session.execute(
+                text_statement.where(ContentUnit.search_vector.op("@@")(ts_query))
+                .order_by(rank.desc())
+                .limit(candidates)
+            ).all()
 
     scores: dict[uuid.UUID, dict[str, Any]] = {}
     k = settings.rrf_k

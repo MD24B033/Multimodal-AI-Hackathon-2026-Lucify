@@ -14,6 +14,7 @@ from typing import Any
 import httpx
 
 from app.config import settings
+from app.llm import timing
 from app.llm.rate_limit import CircuitBreaker, RateLimiter
 
 logger = logging.getLogger(__name__)
@@ -246,10 +247,13 @@ class GroqClient:
 
         last_error: Exception | None = None
         for attempt in range(settings.max_retries):
-            self.limiter.acquire(estimated_tokens, interactive=interactive)
-            self._await_shared_budget(estimated_tokens)
+            with timing.stage("local_bucket_ms"):
+                self.limiter.acquire(estimated_tokens, interactive=interactive)
+            with timing.stage("shared_budget_ms"):
+                self._await_shared_budget(estimated_tokens)
             try:
-                response = self._client.post(f"{self.base_url}{path}", **kwargs)
+                with timing.stage("provider_ms"):
+                    response = self._client.post(f"{self.base_url}{path}", **kwargs)
             except httpx.HTTPError as exc:
                 last_error = exc
                 self._sleep_backoff(attempt)

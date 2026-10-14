@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import DbSession
 from app.api.serializers import serialize_message
 from app.config import settings
+from app.llm import timing
 from app.db.models import ChatMessage, ChatSession, Course, GroundingStatus, Student
 from app.enhancements.tts import synthesize_to_file, transcribe_upload
 from app.learner import memory as learner_memory
@@ -183,18 +184,21 @@ def ask(session_id: uuid.UUID, payload: AskRequest, session: Session = DbSession
     session.add(user_message)
     session.flush()
 
-    result = answer_question(
-        session,
-        chat.course_id,
-        payload.message,
-        student_id=chat.student_id,
-        history=context.history,
-        topic_ids=payload.topic_ids,
-        source_ids=scoped,
-        language=payload.language,
-        context_block=context.block,
-        session_summary=context.summary,
-    )
+    # Stage timings travel with the answer: on a free tier the question is almost
+    # always how much of the wall clock went on waiting for quota rather than work.
+    with timing.capture() as stage_timings:
+        result = answer_question(
+            session,
+            chat.course_id,
+            payload.message,
+            student_id=chat.student_id,
+            history=context.history,
+            topic_ids=payload.topic_ids,
+            source_ids=scoped,
+            language=payload.language,
+            context_block=context.block,
+            session_summary=context.summary,
+        )
 
     assistant_message = ChatMessage(
         session_id=session_id,
@@ -253,6 +257,7 @@ def ask(session_id: uuid.UUID, payload: AskRequest, session: Session = DbSession
         },
         # Why the answer was allowed or refused, so a run can be audited without
         # re-running retrieval against a corpus that may have moved on.
+        "timing": stage_timings,
         "retrieval": {
             "best_score": result.coverage,
             "margin": result.margin,
