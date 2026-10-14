@@ -74,7 +74,7 @@ def render_report(
         f"`{config['models']['vision']}`, verifier `{config['models']['verifier']}`. "
         f"Harness judge: `{judge_model}`. Embeddings `{config['embedding_model']}` (local).",
         "",
-        "Methodology is in [METHODOLOGY.md](METHODOLOGY.md).",
+        "Methodology is in [METHODOLOGY.md](../METHODOLOGY.md).",
         "",
     ]
 
@@ -100,7 +100,10 @@ def render_report(
                 "### Answer latency\n\n"
                 + table([(k.replace("latency_", "").replace("_", " "), f"{v} ms")
                          for k, v in latency.items()])
-                + "\n"
+                + "\nThe harness and the app share one free-tier key, so each answer "
+                  "waits in the token bucket behind the harness's own judge calls. These "
+                  "are queueing figures, not the latency a single user sees — see "
+                  "METHODOLOGY.md.\n"
             )
 
         misses = [c for c in rag["cases"]

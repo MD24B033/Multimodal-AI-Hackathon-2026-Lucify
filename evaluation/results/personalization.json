@@ -1,0 +1,214 @@
+{
+  "metrics": {
+    "adaptive": {
+      "learners": 2,
+      "mean_true_mastery_gain": 0.0163,
+      "mean_estimated_mastery_gain": 0.036,
+      "mean_calibration_error": 0.2442,
+      "question_repetition_rate": 0.0,
+      "total_questions": 12,
+      "by_persona": {
+        "novice": 0.0245,
+        "advanced": 0.008
+      }
+    },
+    "control": {
+      "learners": 2,
+      "mean_true_mastery_gain": 0.0146,
+      "mean_estimated_mastery_gain": 0.0455,
+      "mean_calibration_error": 0.2557,
+      "question_repetition_rate": 0.0,
+      "total_questions": 12,
+      "by_persona": {
+        "novice": 0.02,
+        "advanced": 0.0092
+      }
+    },
+    "adaptive_advantage": {
+      "absolute": 0.0017,
+      "relative": 0.1164
+    }
+  },
+  "learners": {
+    "adaptive": [
+      {
+        "student_id": "f68f9951-4851-4359-93a2-ed918fdf6278",
+        "name": "Novice learner 1",
+        "persona": "novice",
+        "arm": "adaptive",
+        "initial_true_mastery": 0.2587,
+        "final_true_mastery": 0.2832,
+        "true_mastery_gain": 0.0245,
+        "initial_estimated_mastery": 0.25,
+        "final_estimated_mastery": 0.2772,
+        "estimated_mastery_gain": 0.0272,
+        "calibration_error": 0.006,
+        "questions_asked": 6,
+        "repeated_questions": 0,
+        "repetition_rate": 0.0,
+        "sessions": [
+          {
+            "questions": 3,
+            "accuracy": 0.0,
+            "score_percent": 33.33,
+            "topics": [
+              "181c04f1-b3d4-4615-b1aa-58637fa13f80",
+              "1fea80a3-7512-469f-a80c-603ccd0b97f9",
+              "51dd6989-1fa2-4a59-9a1b-5df74134f342"
+            ],
+            "session": 1,
+            "estimated_mastery": 0.2636,
+            "true_mastery": 0.2708
+          },
+          {
+            "questions": 3,
+            "accuracy": 0.3333,
+            "score_percent": 33.33,
+            "topics": [
+              "334f8524-9a21-44e3-9930-0f8e923b07a6",
+              "7989ec7e-bb11-483a-a6b3-22576f81d787",
+              "ff182692-62f2-449a-9651-918043a8d010"
+            ],
+            "session": 2,
+            "estimated_mastery": 0.2772,
+            "true_mastery": 0.2832
+          }
+        ]
+      },
+      {
+        "student_id": "334449df-561e-4f19-ab55-65f730b91fe9",
+        "name": "Advanced learner 1",
+        "persona": "advanced",
+        "arm": "adaptive",
+        "initial_true_mastery": 0.7692,
+        "final_true_mastery": 0.7772,
+        "true_mastery_gain": 0.008,
+        "initial_estimated_mastery": 0.25,
+        "final_estimated_mastery": 0.2949,
+        "estimated_mastery_gain": 0.0449,
+        "calibration_error": 0.4823,
+        "questions_asked": 6,
+        "repeated_questions": 0,
+        "repetition_rate": 0.0,
+        "sessions": [
+          {
+            "questions": 3,
+            "accuracy": 1.0,
+            "score_percent": 0.0,
+            "topics": [
+              "181c04f1-b3d4-4615-b1aa-58637fa13f80",
+              "1fea80a3-7512-469f-a80c-603ccd0b97f9",
+              "51dd6989-1fa2-4a59-9a1b-5df74134f342"
+            ],
+            "session": 1,
+            "estimated_mastery": 0.2458,
+            "true_mastery": 0.7733
+          },
+          {
+            "questions": 3,
+            "accuracy": 0.6667,
+            "score_percent": 100.0,
+            "topics": [
+              "334f8524-9a21-44e3-9930-0f8e923b07a6",
+              "7989ec7e-bb11-483a-a6b3-22576f81d787",
+              "ff182692-62f2-449a-9651-918043a8d010"
+            ],
+            "session": 2,
+            "estimated_mastery": 0.2949,
+            "true_mastery": 0.7772
+          }
+        ]
+      }
+    ],
+    "control": [
+      {
+        "student_id": "49d91b67-8815-43f5-a15b-d4ac95083566",
+        "name": "Novice learner 1",
+        "persona": "novice",
+        "arm": "control",
+        "initial_true_mastery": 0.2418,
+        "final_true_mastery": 0.2619,
+        "true_mastery_gain": 0.02,
+        "initial_estimated_mastery": 0.25,
+        "final_estimated_mastery": 0.2961,
+        "estimated_mastery_gain": 0.0461,
+        "calibration_error": 0.0342,
+        "questions_asked": 6,
+        "repeated_questions": 0,
+        "repetition_rate": 0.0,
+        "sessions": [
+          {
+            "questions": 3,
+            "accuracy": 0.0,
+            "score_percent": 66.67,
+            "topics": [
+              "cff545b3-d2cc-413c-938a-e9dc67e8cb02",
+              "e54479fe-150a-466b-8411-7fadc6149775",
+              "f87547cb-0160-410d-aeb5-03754a704e99"
+            ],
+            "session": 1,
+            "estimated_mastery": 0.2814,
+            "true_mastery": 0.2509
+          },
+          {
+            "questions": 3,
+            "accuracy": 0.0,
+            "score_percent": 33.33,
+            "topics": [
+              "432b188d-8c43-4b26-b98f-9b767fe7ffc0",
+              "512cdbc8-98f1-48af-94b7-4c15c24f1719",
+              "cff545b3-d2cc-413c-938a-e9dc67e8cb02"
+            ],
+            "session": 2,
+            "estimated_mastery": 0.2961,
+            "true_mastery": 0.2619
+          }
+        ]
+      },
+      {
+        "student_id": "ef8f4b25-d3ea-48ba-b1ef-96d8da86ba42",
+        "name": "Advanced learner 1",
+        "persona": "advanced",
+        "arm": "control",
+        "initial_true_mastery": 0.7629,
+        "final_true_mastery": 0.7721,
+        "true_mastery_gain": 0.0092,
+        "initial_estimated_mastery": 0.25,
+        "final_estimated_mastery": 0.2949,
+        "estimated_mastery_gain": 0.0449,
+        "calibration_error": 0.4772,
+        "questions_asked": 6,
+        "repeated_questions": 0,
+        "repetition_rate": 0.0,
+        "sessions": [
+          {
+            "questions": 3,
+            "accuracy": 0.6667,
+            "score_percent": 33.33,
+            "topics": [
+              "512cdbc8-98f1-48af-94b7-4c15c24f1719",
+              "d72f9af9-8750-4aba-aab3-e7dec7012af5",
+              "db43698a-645a-4959-8c9b-6d6c103e769b"
+            ],
+            "session": 1,
+            "estimated_mastery": 0.2636,
+            "true_mastery": 0.7673
+          },
+          {
+            "questions": 3,
+            "accuracy": 0.6667,
+            "score_percent": 66.67,
+            "topics": [
+              "334f8524-9a21-44e3-9930-0f8e923b07a6",
+              "39852d32-aae0-4610-bf6f-c8cc32c5813e",
+              "55b10f48-b4c3-4b98-97aa-b00f7c4da723"
+            ],
+            "session": 2,
+            "estimated_mastery": 0.2949,
+            "true_mastery": 0.7721
+          }
+        ]
+      }
+    ]
+  }
+}
