@@ -15,7 +15,7 @@ material does not cover is declined rather than guessed.
 |---|---|
 | **Live app** | https://lucify-tau.vercel.app |
 | **API** | https://multimodal-ai-hackathon-2026-lucify-production.up.railway.app/health |
-| **Demo video** | YouTube: _add link_ · in-repo copy: [docs/demo/lucify_demo.mp4](docs/demo/lucify_demo.mp4) (5:31, narrated) |
+| **Demo video** | YouTube: _add link_ · in-repo copy: [docs/demo/lucify_demo.mp4](docs/demo/lucify_demo.mp4) (8:38, narrated) |
 | **Evaluation results** | [../evaluation/results/](../evaluation/results/) |
 
 The live app needs an access key — there is no signup. It is deployed on free Railway and
