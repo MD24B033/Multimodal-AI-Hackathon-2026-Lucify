@@ -1,5 +1,17 @@
 # Gallery
 
+## Demo
+
+![demo](gallery/lucify-demo.mp4)
+
+[lucify-demo.mp4](gallery/lucify-demo.mp4) — four minutes, captioned, recorded against a
+local instance. It runs the whole path: the key gate, a document ingested from scratch,
+a grounded answer with a citation opened at the highlighted lines, a refusal, notes,
+background assessment generation, spoken tutoring and the memory page.
+
+The wait while the ingest finished is cut, and the cut is labelled on screen.
+
+
 Five screens, captured from the running app at 1440×900 on a 2× display. Each has a plain
 version and an `-annotated` version with numbered callouts, in `docs/gallery/`.
 

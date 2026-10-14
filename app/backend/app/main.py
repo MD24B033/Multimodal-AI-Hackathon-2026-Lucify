@@ -51,6 +51,49 @@ def _warm_embedder() -> None:
         logger.warning("Could not warm the embedding model", exc_info=True)
 
 
+def _release_orphaned_work() -> None:
+    """Queues live in this process, so anything still marked running belongs to a
+    process that is gone — a restart or a deploy. Left alone it shows as "working"
+    in the interface for ever."""
+    from sqlalchemy import select
+
+    from app.db.database import session_scope
+    from app.db.models import GenerationTask, IngestionJob, JobStatus, Source, SourceStatus
+
+    message = "Interrupted by a restart. Start it again."
+    try:
+        with session_scope() as session:
+            tasks = session.scalars(
+                select(GenerationTask).where(GenerationTask.status == JobStatus.running)
+            ).all()
+            for task in tasks:
+                task.status = JobStatus.failed
+                task.stage = "interrupted"
+                task.error = message
+
+            jobs = session.scalars(
+                select(IngestionJob).where(IngestionJob.status == JobStatus.running)
+            ).all()
+            for job in jobs:
+                job.status = JobStatus.failed
+                job.stage = "interrupted"
+                job.error = message
+                source = session.get(Source, job.source_id)
+                if source is not None:
+                    source.status = SourceStatus.failed
+                    source.error = message
+
+            if tasks or jobs:
+                session.commit()
+                logger.warning(
+                    "Released %d generation task(s) and %d ingestion job(s) left running by a previous process",
+                    len(tasks),
+                    len(jobs),
+                )
+    except Exception:
+        logger.warning("Could not reconcile interrupted work", exc_info=True)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings.ensure_directories()
@@ -62,6 +105,7 @@ async def lifespan(app: FastAPI):
     resume_after_shutdown()
     install_shutdown_signals()
     logger.info("Realtime transport: %s", get_broker().name)
+    _release_orphaned_work()
 
     if auth_enabled():
         from app.db.database import session_scope
