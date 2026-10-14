@@ -6,6 +6,29 @@ generation evaluation using RAGAS, and a personalization evaluation using simula
 A run writes its numbers to `evaluation/results/` as `rag.json`, `personalization.json` and a
 generated `RESULTS.md`. This document is the methodology.
 
+## Results
+
+Latest run, 2026-10-14, against the **Deep Learning Foundations** course (327 units, 37 topics,
+3 sources). Full report: [../../evaluation/results/RESULTS.md](../../evaluation/results/RESULTS.md).
+
+| RAGAS | | Source location | | Refusal | |
+|---|---|---|---|---|---|
+| Faithfulness | 65.3% | Source hit rate | 75.0% | Correct refusal rate | 100.0% |
+| Answer relevancy | 91.0% | Mean reciprocal rank | 75.0% | False refusal rate | 0.0% |
+| Context precision | 68.8% | Source recall | 75.0% | Refusal F1 | 100.0% |
+| Context recall | 62.5% | Precision@k | 50.0% | | |
+
+Personalization, adaptive against a non-adaptive control with everything else identical:
+
+| Arm | True mastery gain | Estimated gain | Calibration error | Repetition |
+|---|---|---|---|---|
+| adaptive | 1.6% | 3.6% | 24.4% | 0.0% |
+| control | 1.5% | 4.5% | 25.6% | 0.0% |
+
+The adaptive arm gains 11.6% more true mastery than the control and stays better calibrated, on
+twelve questions per arm — indicative of direction, not a confidence-interval-bearing result. Read
+it next to the threats to validity at the end of this document.
+
 ## Why these metrics
 
 The track asks for faithfulness, answer relevancy, context precision and context recall from a
@@ -20,7 +43,7 @@ are in the same run and the same report.
 
 ## Test set construction
 
-`app/evaluation/testset.py` builds the set from the ingested corpus, which is what makes ground-truth
+`evaluation/harness/testset.py` builds the set from the ingested corpus, which is what makes ground-truth
 source locations knowable rather than guessed.
 
 **Answerable cases.** A content unit is sampled, and the model is asked to write a question that
@@ -82,7 +105,7 @@ reported. A system that refuses everything scores 100% on the first and is usele
 
 ## Personalization evaluation
 
-`app/evaluation/simulated_students.py` runs synthetic learners through multiple study sessions.
+`evaluation/harness/personalization.py` runs synthetic learners through multiple study sessions.
 
 Each learner has a **hidden true ability** per topic, drawn from a persona:
 
@@ -117,21 +140,24 @@ limitation rather than a hidden one.
 
 ## Reproducing
 
-From the Evaluation tab in the UI, or:
+The harness is a separate process that drives a running instance over its public HTTP API, so it
+cannot shortcut retrieval. Start the app, then:
 
 ```bash
-curl -X POST localhost:8000/api/evaluation/rag \
-  -H 'Content-Type: application/json' \
-  -d '{"course_id":"<id>","answerable_count":12,"off_material_count":5}'
-
-curl -X POST localhost:8000/api/evaluation/personalization \
-  -H 'Content-Type: application/json' \
-  -d '{"course_id":"<id>","learners_per_persona":1,"sessions_per_learner":3,"compare_control":true}'
+cd evaluation
+pip install -r requirements.txt
+export GROQ_API_KEY=gsk_...        # the judge calls Groq directly
+export ACCESS_KEY=...              # one of the app's ACCESS_KEYS
+python run_eval.py --course "Deep Learning Foundations" --answerable 8 --off-material 4
 ```
 
-Runs are stored in `eval_runs` with their full configuration, and every case is stored in
-`eval_cases` with its retrieved locations and per-case scores, so a reported aggregate can always be
-traced back to the individual cases behind it.
+Add `--testset results/testset.json` to reuse a saved test set for a like-for-like comparison, and
+set `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` so the harness shares the app's token
+budget instead of competing with it. `evaluation/README.md` lists every flag.
+
+Each run writes `results/rag.json`, `results/personalization.json` and a generated `RESULTS.md`
+holding every per-case score, so a reported aggregate can be traced back to the cases behind it.
+The app also persists runs in `eval_runs` and cases in `eval_cases`.
 
 ## Threats to validity
 

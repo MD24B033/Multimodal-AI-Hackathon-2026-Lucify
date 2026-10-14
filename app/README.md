@@ -141,21 +141,32 @@ Ingestion is a background job with live progress in the UI. The slide decks are 
 each slide is read by the vision model; expect roughly ten seconds per slide, and longer when the
 rate limit throttles.
 
-## Running an evaluation
+## Evaluation
 
-From the Evaluation tab, or directly:
+Measured on the Deep Learning Foundations course, 2026-10-14 — full report in
+[../evaluation/results/RESULTS.md](../evaluation/results/RESULTS.md), methodology in
+[docs/EVALUATION.md](docs/EVALUATION.md).
+
+| | | | |
+|---|---|---|---|
+| Answer relevancy | 91.0% | Source hit rate | 75.0% |
+| Faithfulness | 65.3% | Mean reciprocal rank | 75.0% |
+| Context precision | 68.8% | Correct refusal rate | 100.0% |
+| Context recall | 62.5% | False refusal rate | 0.0% |
+
+The adaptive learner model gains 11.6% more true mastery than an otherwise identical non-adaptive
+control arm, with lower calibration error and no repeated questions.
+
+The harness is a separate process that drives a running instance over its public HTTP API, so it
+cannot shortcut retrieval. Start the app, then:
 
 ```bash
-curl -X POST localhost:8000/api/evaluation/rag \
-  -H 'Content-Type: application/json' \
-  -d '{"course_id":"<id>","answerable_count":12,"off_material_count":5}'
-
-curl -X POST localhost:8000/api/evaluation/personalization \
-  -H 'Content-Type: application/json' \
-  -d '{"course_id":"<id>","sessions_per_learner":3,"compare_control":true}'
+cd ../evaluation
+pip install -r requirements.txt
+export GROQ_API_KEY=gsk_...        # the judge calls Groq directly
+export ACCESS_KEY=...              # one of the app's ACCESS_KEYS
+python run_eval.py --course "Deep Learning Foundations" --answerable 8 --off-material 4
 ```
-
-Both run sequentially to respect the token limit. Results are stored and rendered per test case.
 
 ## Rate limits
 
