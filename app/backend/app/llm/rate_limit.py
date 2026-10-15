@@ -110,11 +110,34 @@ class CircuitBreaker:
 
 
 class RateLimiter:
+    """Token buckets per model, requests shared.
+
+    Groq meters tokens per model, so one bucket for all of them throttled the app to a
+    fraction of its real allowance whenever two model families were in play at once.
+    Requests stay on a single bucket: that limit is generous and per account.
+    """
+
     def __init__(self, tokens_per_minute: int, requests_per_minute: int):
-        self.tokens = TokenBucket(tokens_per_minute)
+        self.tokens_per_minute = tokens_per_minute
+        self._buckets: dict[str, TokenBucket] = {}
+        self._buckets_lock = threading.Lock()
         self.requests = TokenBucket(requests_per_minute)
         self._priority_gate = threading.Condition()
         self._waiting_interactive = 0
+
+    def bucket(self, model: str | None = None) -> TokenBucket:
+        key = model or "default"
+        with self._buckets_lock:
+            existing = self._buckets.get(key)
+            if existing is None:
+                existing = TokenBucket(self.tokens_per_minute)
+                self._buckets[key] = existing
+            return existing
+
+    @property
+    def tokens(self) -> TokenBucket:
+        """The default bucket, for callers that do not name a model."""
+        return self.bucket(None)
 
     def _enter_batch(self) -> None:
         with self._priority_gate:
@@ -130,26 +153,32 @@ class RateLimiter:
             self._waiting_interactive = max(0, self._waiting_interactive - 1)
             self._priority_gate.notify_all()
 
-    def acquire(self, estimated_tokens: int, interactive: bool = False) -> None:
+    def acquire(
+        self, estimated_tokens: int, interactive: bool = False, model: str | None = None
+    ) -> None:
+        tokens = self.bucket(model)
         if interactive:
             self._enter_interactive()
             try:
                 self.requests.acquire(1)
-                self.tokens.acquire(estimated_tokens)
+                tokens.acquire(estimated_tokens)
             finally:
                 self._leave_interactive()
             return
 
         self._enter_batch()
         self.requests.acquire(1)
-        self.tokens.acquire(estimated_tokens)
+        tokens.acquire(estimated_tokens)
 
-    def reconcile(self, estimated_tokens: int, actual_tokens: int) -> None:
+    def reconcile(
+        self, estimated_tokens: int, actual_tokens: int, model: str | None = None
+    ) -> None:
+        tokens = self.bucket(model)
         delta = estimated_tokens - actual_tokens
         if delta > 0:
-            self.tokens.release(delta)
+            tokens.release(delta)
         elif delta < 0:
-            self.tokens.acquire(-delta, timeout=120.0)
+            tokens.acquire(-delta, timeout=120.0)
 
-    def back_off(self, seconds: float) -> None:
-        self.tokens.penalise(seconds)
+    def back_off(self, seconds: float, model: str | None = None) -> None:
+        self.bucket(model).penalise(seconds)

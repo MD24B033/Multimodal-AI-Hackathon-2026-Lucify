@@ -14,7 +14,7 @@ from typing import Any
 import httpx
 
 from app.config import settings
-from app.llm import timing
+from app.llm import sizing, timing
 from app.llm.rate_limit import CircuitBreaker, RateLimiter
 
 logger = logging.getLogger(__name__)
@@ -238,7 +238,13 @@ class GroqClient:
         self._client.close()
 
     def _post(
-        self, path: str, *, estimated_tokens: int, interactive: bool = False, **kwargs
+        self,
+        path: str,
+        *,
+        estimated_tokens: int,
+        interactive: bool = False,
+        model: str | None = None,
+        **kwargs,
     ) -> httpx.Response:
         if not self.api_key:
             raise GroqError("GROQ_API_KEY is not configured")
@@ -250,9 +256,9 @@ class GroqClient:
         last_error: Exception | None = None
         for attempt in range(settings.max_retries):
             with timing.stage("local_bucket_ms"):
-                self.limiter.acquire(estimated_tokens, interactive=interactive)
+                self.limiter.acquire(estimated_tokens, interactive=interactive, model=model)
             with timing.stage("shared_budget_ms"):
-                self._await_shared_budget(estimated_tokens)
+                self._await_shared_budget(estimated_tokens, model)
             try:
                 with timing.stage("provider_ms"):
                     response = self._client.post(f"{self.base_url}{path}", **kwargs)
@@ -279,7 +285,7 @@ class GroqClient:
                 raise last_error
 
             if retry_after:
-                self.limiter.back_off(retry_after)
+                self.limiter.back_off(retry_after, model)
             self._sleep_backoff(attempt, retry_after)
 
         self.breaker.record_failure(str(last_error))
@@ -287,17 +293,17 @@ class GroqClient:
             f"Groq request failed after {settings.max_retries} attempts: {last_error}"
         )
 
-    def _refund_shared_budget(self, unused: int) -> None:
+    def _refund_shared_budget(self, unused: int, model: str | None = None) -> None:
         if self.shared_budget is not None and unused > 0:
-            self.shared_budget.refund(unused)
+            self.shared_budget.refund(unused, model)
 
-    def _await_shared_budget(self, tokens: int) -> None:
+    def _await_shared_budget(self, tokens: int, model: str | None = None) -> None:
         """Every process pointing at the same Upstash database draws from one budget,
         so the API and the evaluation harness cannot each assume the whole allowance."""
         if self.shared_budget is None:
             return
         for _ in range(12):
-            allowed, wait = self.shared_budget.try_consume(tokens)
+            allowed, wait = self.shared_budget.try_consume(tokens, model)
             if allowed:
                 return
             time.sleep(min(max(wait, 0.5), 10.0))
@@ -365,14 +371,20 @@ class GroqClient:
                 max_tokens,
                 settings.tokens_per_minute,
             )
-        # Groq admits a request against max_completion_tokens, not actual usage, so
-        # reserving less than that guarantees a 429 and a wasted backoff.
-        estimated = prompt_estimate + max_tokens
+        # Measured against the provider: the per-minute ceiling is charged on what a
+        # call spends, not on what max_completion_tokens allowed it to spend. Two
+        # identical 21-token replies moved the remaining-tokens header by the same
+        # amount at max_tokens 50 and at 3,000. Booking the ceiling therefore held back
+        # roughly twice the tokens a page of vision actually costs. Reconcile settles
+        # the difference as soon as the real figure arrives, so an occasional
+        # under-estimate costs a top-up rather than a refusal.
+        estimated = prompt_estimate + sizing.expected_completion(task, max_tokens)
         try:
             response = self._post(
                 "/chat/completions",
                 estimated_tokens=estimated,
                 interactive=interactive,
+                model=model,
                 json=payload,
             )
         except GroqError as exc:
@@ -399,8 +411,9 @@ class GroqClient:
             prompt_tokens=int(usage_body.get("prompt_tokens", 0)),
             completion_tokens=int(usage_body.get("completion_tokens", 0)),
         )
-        self.limiter.reconcile(estimated, usage.total or estimated)
-        self._refund_shared_budget(estimated - (usage.total or estimated))
+        self.limiter.reconcile(estimated, usage.total or estimated, model)
+        self._refund_shared_budget(estimated - (usage.total or estimated), model)
+        sizing.observe_completion(task, usage.completion_tokens)
 
         completion = Completion(text=text, model=model, usage=usage, task=task, raw=body)
         if use_cache and temperature <= 0.3 and text:

@@ -82,12 +82,15 @@ class SharedTokenBudget:
         self.limit = tokens_per_minute
         self.namespace = namespace
 
-    def _key(self) -> str:
-        return f"{self.namespace}:tokens:{int(time.time() // 60)}"
+    def _key(self, model: str | None = None) -> str:
+        # Groq meters per model, so the shared counter does too. Without this the
+        # vision pass and the text pass drained one allowance between them.
+        slot = int(time.time() // 60)
+        return f"{self.namespace}:tokens:{model or 'default'}:{slot}"
 
-    def try_consume(self, tokens: int) -> tuple[bool, float]:
+    def try_consume(self, tokens: int, model: str | None = None) -> tuple[bool, float]:
         """Returns (allowed, seconds_until_window_resets)."""
-        key = self._key()
+        key = self._key(model)
         try:
             used, _ = self.client.pipeline([["INCRBY", key, tokens], ["EXPIRE", key, 120]])
         except Exception:
@@ -103,7 +106,7 @@ class SharedTokenBudget:
             return False, remaining_window
         return True, remaining_window
 
-    def refund(self, tokens: int) -> None:
+    def refund(self, tokens: int, model: str | None = None) -> None:
         """Give back the difference between what a call reserved and what it spent.
 
         A reservation has to assume the completion runs to max_tokens, so a chat turn
@@ -115,7 +118,7 @@ class SharedTokenBudget:
         if tokens <= 0:
             return
         try:
-            self.client.command("DECRBY", self._key(), tokens)
+            self.client.command("DECRBY", self._key(model), tokens)
         except Exception:
             logger.debug("Could not refund unused tokens", exc_info=True)
 
