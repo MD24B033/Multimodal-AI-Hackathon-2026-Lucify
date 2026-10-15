@@ -27,10 +27,19 @@ class Answer:
     retrieved_labels: list[str]
     margin: float
     latency_ms: int
+    # Set when the app could not produce an answer at all -- quota spent, provider
+    # unreachable. Scoring one of these as a refusal turns an outage into a
+    # measurement, which is how a run where every call failed still reported a
+    # 100% correct refusal rate.
+    failure: str | None = None
+
+    @property
+    def failed(self) -> bool:
+        return self.failure is not None
 
     @property
     def refused(self) -> bool:
-        return self.grounding_status in {"refused", "unsupported"}
+        return not self.failed and self.grounding_status in {"refused", "unsupported"}
 
 
 class StudyCompanionClient:
@@ -138,6 +147,17 @@ class StudyCompanionClient:
         )
         message = payload["message"]
         retrieval = payload.get("retrieval") or {}
+        availability = payload.get("availability") or {}
+        failure = availability.get("reason")
+        if failure is None and availability.get("ok") is False:
+            failure = "unavailable"
+        if failure is None:
+            # Older builds reported nothing; fall back to the sentinel text they used.
+            body = message.get("content") or ""
+            if "quota exhausted" in body.lower():
+                failure = "daily_quota_exhausted"
+            elif "temporarily unavailable" in body.lower():
+                failure = "provider_unavailable"
         cited = [citation["unit_id"] for citation in (message.get("citations") or [])]
         # Older builds did not report the retrieval set; fall back to the citations so
         # the harness still runs, and say so in the results rather than silently
@@ -154,6 +174,7 @@ class StudyCompanionClient:
             retrieved_labels=list(retrieval.get("labels") or []),
             margin=float(retrieval.get("margin") or 0.0),
             latency_ms=message.get("latency_ms") or int((time.perf_counter() - started) * 1000),
+            failure=failure,
         )
 
     def search(self, course_id: str, query: str, top_k: int = 8) -> dict[str, Any]:

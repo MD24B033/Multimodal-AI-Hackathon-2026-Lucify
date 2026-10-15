@@ -257,6 +257,9 @@ def ask(session_id: uuid.UUID, payload: AskRequest, session: Session = DbSession
         },
         # Why the answer was allowed or refused, so a run can be audited without
         # re-running retrieval against a corpus that may have moved on.
+        # Whether this answer is missing for an infrastructure reason rather than an
+        # evidence one. Clients and benchmarks must be able to tell the two apart.
+        "availability": {"ok": result.failure is None, "reason": result.failure},
         "timing": stage_timings,
         "retrieval": {
             "best_score": result.coverage,

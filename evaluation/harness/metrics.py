@@ -50,15 +50,31 @@ def collect(
     *,
     on_progress=None,
     units: dict[str, dict] | None = None,
+    abort_after_failures: int = 3,
 ) -> list[Prediction]:
     session_id = client.create_session(course_id, student_id, title="Evaluation run")
     predictions: list[Prediction] = []
     lookup = units or {}
+    consecutive_failures = 0
 
     for index, case in enumerate(cases):
         if on_progress:
             on_progress(index, len(cases), case.question)
         answer = client.ask(session_id, case.question)
+
+        # A spent quota does not recover inside a run. Carrying on just spends nine
+        # minutes collecting failures that no metric can use.
+        if answer.failed:
+            consecutive_failures += 1
+            if consecutive_failures >= abort_after_failures:
+                print(
+                    f"  !! stopping after {consecutive_failures} consecutive failures "
+                    f"({answer.failure}); nothing further can be measured"
+                )
+                predictions.append(Prediction(case=case, answer=answer, contexts=[]))
+                return predictions
+        else:
+            consecutive_failures = 0
         # Judge against the passages the generator was given. Judging against the
         # ones it chose to cite marks a claim unfaithful whenever its support sat in
         # an uncited passage, and marks a wrong answer faithful whenever the model
@@ -85,7 +101,11 @@ def retrieval_metrics(
     citation  - the generator pointed the learner at that passage
     """
     lookup = units or {}
-    answerable = [p for p in predictions if p.case.expected_behavior == "answerable"]
+    answerable = [
+        p
+        for p in predictions
+        if p.case.expected_behavior == "answerable" and not p.answer.failed
+    ]
     scored = [p for p in answerable if p.case.ground_truth_unit_ids]
     if not scored:
         return {}
@@ -144,8 +164,10 @@ def retrieval_metrics(
 
 
 def refusal_metrics(predictions: list[Prediction]) -> dict[str, Any]:
-    off_material = [p for p in predictions if p.case.expected_behavior == "off_material"]
-    answerable = [p for p in predictions if p.case.expected_behavior == "answerable"]
+    # A call that never reached the model says nothing about refusal behaviour.
+    usable = [p for p in predictions if not p.answer.failed]
+    off_material = [p for p in usable if p.case.expected_behavior == "off_material"]
+    answerable = [p for p in usable if p.case.expected_behavior == "answerable"]
 
     correct = sum(1 for p in off_material if p.answer.grounding_status in REFUSED)
     false_refusals = sum(1 for p in answerable if p.answer.grounding_status in REFUSED)
@@ -187,8 +209,23 @@ def refusal_metrics(predictions: list[Prediction]) -> dict[str, Any]:
     return metrics
 
 
+def failure_metrics(predictions: list[Prediction]) -> dict[str, Any]:
+    """Reported first and unconditionally. A run with failures is not a run."""
+    failed = [p for p in predictions if p.answer.failed]
+    reasons: dict[str, int] = {}
+    for prediction in failed:
+        reasons[prediction.answer.failure] = reasons.get(prediction.answer.failure, 0) + 1
+    return {
+        "failed_cases": len(failed),
+        "failure_reasons": reasons,
+        "scored_cases": len(predictions) - len(failed),
+    }
+
+
 def latency_metrics(predictions: list[Prediction]) -> dict[str, Any]:
-    values = sorted(p.answer.latency_ms for p in predictions if p.answer.latency_ms)
+    values = sorted(
+        p.answer.latency_ms for p in predictions if p.answer.latency_ms and not p.answer.failed
+    )
     if not values:
         return {}
     return {
@@ -215,6 +252,7 @@ def ragas_metrics(predictions: list[Prediction], judge: GroqJudge) -> dict[str, 
         p
         for p in predictions
         if p.case.expected_behavior == "answerable"
+        and not p.answer.failed
         and p.contexts
         and p.answer.text
         and p.answer.grounding_status not in REFUSED

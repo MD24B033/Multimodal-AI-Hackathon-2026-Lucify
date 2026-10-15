@@ -73,6 +73,9 @@ class GroundedAnswer:
     followups: list[str] = field(default_factory=list)
     coverage: float = 0.0
     margin: float = 0.0
+    # Set when the answer is missing because the provider could not be reached or the
+    # quota is spent. A refusal is a decision about evidence; this is neither.
+    failure: str | None = None
     retrieval: RetrievalResult | None = None
     topic_ids: list[uuid.UUID] = field(default_factory=list)
     usage_tokens: int = 0
@@ -197,6 +200,7 @@ def answer_question(
             answer=f"**{exc}**\n\nRetrieval still worked, so the sources below are the ones that "
             f"answer your question. Open them directly while the quota resets.",
             status=GroundingStatus.refused,
+            failure="daily_quota_exhausted",
             citations=retrieval.citations(),
             coverage=retrieval.best_score,
             margin=retrieval.margin,
@@ -207,6 +211,7 @@ def answer_question(
         return GroundedAnswer(
             answer="The tutor is temporarily unavailable. Please try again in a moment.",
             status=GroundingStatus.refused,
+            failure="provider_unavailable",
             coverage=retrieval.best_score,
             margin=retrieval.margin,
             retrieval=retrieval,

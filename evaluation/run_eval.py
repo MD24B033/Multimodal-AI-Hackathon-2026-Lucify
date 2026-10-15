@@ -80,6 +80,14 @@ def render_report(
 
     if rag:
         m = rag["metrics"]
+        if m.get("failed_cases"):
+            parts += [
+                f"> **{m['failed_cases']} of {m.get('total_cases', '?')} cases never reached "
+                f"the model** ({m['failure_reasons']}). They are excluded from every metric "
+                "below, so the denominators are smaller than the test set. Treat this run as "
+                "incomplete.",
+                "",
+            ]
         parts += [
             "## Retrieval and generation",
             "",
@@ -243,6 +251,13 @@ def main() -> None:
         print(f"  {len(predictions)} answers in {(time.perf_counter() - started) / 60:.1f} min")
 
         rag_metrics: dict = {}
+        rag_metrics.update(metric_module.failure_metrics(predictions))
+        if rag_metrics.get("failed_cases"):
+            print(
+                f"\n  !! {rag_metrics['failed_cases']} of {len(predictions)} cases never "
+                f"reached the model: {rag_metrics['failure_reasons']}"
+            )
+            print("     Those cases are excluded from every metric below.")
         rag_metrics.update(metric_module.retrieval_metrics(predictions, unit_lookup))
         rag_metrics.update(metric_module.refusal_metrics(predictions))
         rag_metrics.update(metric_module.latency_metrics(predictions))
@@ -272,6 +287,7 @@ def main() -> None:
                     "retrieved_ground_truth": p.retrieved_ground_truth,
                     "cited_ground_truth": p.cited_ground_truth,
                     "margin": p.answer.margin,
+                    "failure": p.answer.failure,
                     "category": p.case.category,
                     "retrieved_context": p.answer.retrieved_labels,
                     "retrieved": [

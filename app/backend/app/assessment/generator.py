@@ -158,6 +158,24 @@ def _units_for_topic(
     return units[:limit]
 
 
+def _already_asked(
+    session: Session, course_id: uuid.UUID, topics: list["Topic | None"], limit: int = 14
+) -> list[str]:
+    """Stems already in the bank for these topics, newest first.
+
+    Bounded deliberately: the point is to steer away from the obvious repeats, not to
+    hand the model the whole history at a few tokens per line.
+    """
+    topic_ids = [topic.id for topic in topics if topic is not None]
+    statement = select(Question.stem).where(Question.course_id == course_id)
+    if topic_ids:
+        statement = statement.where(Question.topic_id.in_(topic_ids))
+    stems = session.scalars(
+        statement.order_by(Question.created_at.desc()).limit(limit)
+    ).all()
+    return [stem.strip()[:110] for stem in stems if stem and stem.strip()]
+
+
 def _context_block(session: Session, units: list[ContentUnit]) -> tuple[str, dict[int, ContentUnit]]:
     source_ids = {unit.source_id for unit in units}
     sources = {
@@ -278,8 +296,18 @@ def generate_for_plan(
         f"  {key}: {item.label} - {item.count} question(s) at {item.difficulty} difficulty"
         for key, item in targets
     )
+    asked = _already_asked(session, course_id, [item.topic for _key, item in targets])
+    avoid_block = ""
+    if asked:
+        listed = "\n".join(f"  - {stem}" for stem in asked)
+        avoid_block = (
+            f"ALREADY ASKED - do not repeat these or rephrase them:\n{listed}\n\n"
+            "Cover different ideas, or the same idea from a genuinely different angle.\n\n"
+        )
+
     request = (
         f"SOURCE EXCERPTS:\n{context}\n\n"
+        f"{avoid_block}"
         f"TARGETS:\n{target_lines}\n\n"
         f"Write {wanted + 2} questions in total, honouring each target's count, and put the "
         f"target id in the \"target\" field of every question.\n"
