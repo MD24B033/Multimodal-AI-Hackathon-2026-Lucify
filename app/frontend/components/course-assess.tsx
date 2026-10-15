@@ -4,6 +4,7 @@ import {
   BadgeCheck,
   Brain,
   CheckCircle2,
+  FilePlus2,
   Lightbulb,
   Target,
   TrendingDown,
@@ -12,6 +13,8 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { SessionRail, type SessionRow } from "@/components/session-rail";
+import { useSession } from "@/components/session-context";
 import { CitationList } from "@/components/source-viewer";
 import { useTasks } from "@/components/task-center";
 import { RichLine, RichText } from "@/components/rich-text";
@@ -26,6 +29,13 @@ const QUESTION_TYPES = [
 ];
 
 type Phase = "build" | "take" | "review";
+
+/** What the list endpoint returns: the assessment without its questions, plus the
+ *  score and length that make a history rail worth looking at. */
+type AssessmentSummary = Assessment & {
+  score_percent?: number | null;
+  question_count?: number;
+};
 
 const KIND_LABEL: Record<string, string> = {
   quiz: "Practice quiz",
@@ -42,7 +52,9 @@ export function CourseAssess({
   unitCount: number;
   onOpenCitation: (citation: Citation) => void;
 }) {
+  const { student } = useSession();
   const [phase, setPhase] = useState<Phase>("build");
+  const [history, setHistory] = useState<AssessmentSummary[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [report, setReport] = useState<AssessmentReport | null>(null);
@@ -60,6 +72,23 @@ export function CourseAssess({
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [adaptive, setAdaptive] = useState(true);
   const [verify, setVerify] = useState(true);
+
+  const loadHistory = useCallback(async () => {
+    if (!student) return;
+    try {
+      setHistory(
+        await get<AssessmentSummary[]>(
+          `/api/assessments?course_id=${courseId}&student_id=${student.id}`,
+        ),
+      );
+    } catch {
+      /* the rail is not worth an error banner over */
+    }
+  }, [courseId, student]);
+
+  useEffect(() => {
+    void loadHistory();
+  }, [loadHistory]);
 
   const loadTopics = useCallback(async () => {
     const list = await get<Topic[]>(`/api/courses/${courseId}/topics`);
@@ -100,6 +129,17 @@ export function CourseAssess({
     const full = await get<Assessment>(`/api/assessments/${assessmentId}`);
     setAssessment(full);
     setResponses({});
+
+    // A graded attempt reopens as its report, an unfinished one as the paper itself.
+    if (full.status === "graded") {
+      try {
+        setReport(await get<AssessmentReport>(`/api/assessments/${assessmentId}/report`));
+        setPhase("review");
+        return;
+      } catch {
+        /* no report stored; fall through and show the questions */
+      }
+    }
     setReport(null);
     setPhase("take");
   }, []);
@@ -115,6 +155,7 @@ export function CourseAssess({
     );
     if (!done || done.id === claimedTask.current) return;
     claimedTask.current = done.id;
+    void loadHistory();
     void openAssessment(done.result.assessment_id as string).catch(() => undefined);
   }, [tasks, courseId, openAssessment]);
 
@@ -130,6 +171,7 @@ export function CourseAssess({
       setAssessment(result.assessment);
       setReport(result.report);
       setPhase("review");
+      void loadHistory();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Could not submit");
     } finally {
@@ -137,8 +179,38 @@ export function CourseAssess({
     }
   }
 
+  const rows: SessionRow[] = history.map((item) => ({
+    id: item.id,
+    title: item.title,
+    updated_at: item.submitted_at ?? item.created_at,
+    subtitle:
+      item.status === "graded"
+        ? `${item.question_count ?? 0} questions`
+        : item.status === "in_progress"
+          ? "not finished"
+          : item.status,
+    badge: typeof item.score_percent === "number" ? `${Math.round(item.score_percent)}%` : undefined,
+  }));
+
   return (
-    <div className="space-y-5">
+    <div className="grid gap-4 lg:grid-cols-[auto_minmax(0,1fr)]">
+      <SessionRail
+        sessions={rows}
+        activeId={assessment?.id ?? null}
+        onSelect={(id) => void openAssessment(id).catch(() => undefined)}
+        onCreate={() => {
+          setAssessment(null);
+          setReport(null);
+          setPhase("build");
+        }}
+        storageKey="companion.rail.assessments"
+        label="Attempts"
+        newLabel="New assessment"
+        newIcon={FilePlus2}
+        emptyNote="Your past assessments appear here."
+      />
+
+      <div className="min-w-0 space-y-5">
       {error ? <Notice message={error} /> : null}
 
       {phase === "build" ? (
@@ -510,6 +582,7 @@ export function CourseAssess({
           description="Add material to this course and questions will be generated from it."
         />
       ) : null}
+      </div>
     </div>
   );
 }

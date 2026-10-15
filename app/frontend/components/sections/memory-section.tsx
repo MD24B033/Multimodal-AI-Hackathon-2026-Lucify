@@ -3,6 +3,8 @@
 import { motion } from "motion/react";
 import {
   Archive,
+  BookMarked,
+  Globe,
   BrainCircuit,
   Flag,
   Pencil,
@@ -51,6 +53,9 @@ export function MemorySection() {
   const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [draftKind, setDraftKind] = useState<MemoryKind>("preference");
+  // "" means everywhere. A memory is either global or tied to exactly one course.
+  const [draftCourse, setDraftCourse] = useState("");
+  const [scopeFilter, setScopeFilter] = useState<"all" | "global" | string>("all");
   const [editing, setEditing] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
 
@@ -73,7 +78,11 @@ export function MemorySection() {
   async function add() {
     if (!draft.trim()) return;
     try {
-      await post("/api/memory", { kind: draftKind, content: draft.trim() });
+      await post("/api/memory", {
+        kind: draftKind,
+        content: draft.trim(),
+        course_id: draftCourse || null,
+      });
       setDraft("");
       await load();
     } catch (cause) {
@@ -91,8 +100,20 @@ export function MemorySection() {
     await load();
   }
 
+  const courseName = (id: string | null) =>
+    id ? (courses.find((course) => course.id === id)?.title ?? "A course") : null;
+
+  const visible = memories.filter((item) => {
+    if (scopeFilter === "all") return true;
+    if (scopeFilter === "global") return item.course_id === null;
+    return item.course_id === scopeFilter;
+  });
+
+  const globalCount = memories.filter((item) => item.course_id === null).length;
+  const courseCount = memories.length - globalCount;
+
   const grouped = (["preference", "goal", "struggle", "strength", "context"] as MemoryKind[])
-    .map((kind) => ({ kind, items: memories.filter((item) => item.kind === kind) }))
+    .map((kind) => ({ kind, items: visible.filter((item) => item.kind === kind) }))
     .filter((group) => group.items.length > 0);
 
   return (
@@ -116,7 +137,7 @@ export function MemorySection() {
 
       <Panel>
         <p className="eyebrow mb-3">Tell it something directly</p>
-        <div className="grid gap-3 md:grid-cols-[150px_minmax(0,1fr)_auto]">
+        <div className="grid gap-3 md:grid-cols-[150px_170px_minmax(0,1fr)_auto]">
           <Field label="Type">
             <select
               className="input"
@@ -126,6 +147,20 @@ export function MemorySection() {
               {Object.entries(KIND_META).map(([value, meta]) => (
                 <option key={value} value={value}>
                   {meta.label}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Applies to">
+            <select
+              className="input"
+              value={draftCourse}
+              onChange={(event) => setDraftCourse(event.target.value)}
+            >
+              <option value="">Everywhere</option>
+              {courses.map((course) => (
+                <option key={course.id} value={course.id}>
+                  {course.title}
                 </option>
               ))}
             </select>
@@ -146,6 +181,46 @@ export function MemorySection() {
           </div>
         </div>
       </Panel>
+
+      {memories.length > 0 ? (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="eyebrow mr-1">Scope</span>
+          <button
+            type="button"
+            className={`btn px-2.5 py-1 text-xs ${scopeFilter === "all" ? "btn-primary" : ""}`}
+            onClick={() => setScopeFilter("all")}
+          >
+            All {memories.length}
+          </button>
+          <button
+            type="button"
+            className={`btn px-2.5 py-1 text-xs ${scopeFilter === "global" ? "btn-primary" : ""}`}
+            onClick={() => setScopeFilter("global")}
+          >
+            <Globe className="h-3 w-3" /> Everywhere {globalCount}
+          </button>
+          {courses
+            .filter((course) => memories.some((item) => item.course_id === course.id))
+            .map((course) => (
+              <button
+                key={course.id}
+                type="button"
+                className={`btn px-2.5 py-1 text-xs ${
+                  scopeFilter === course.id ? "btn-primary" : ""
+                }`}
+                onClick={() => setScopeFilter(course.id)}
+              >
+                <BookMarked className="h-3 w-3" />
+                {course.title.length > 24 ? `${course.title.slice(0, 24)}...` : course.title}
+              </button>
+            ))}
+          {courseCount === 0 ? (
+            <span className="text-[11px] text-[var(--ink-faint)]">
+              Nothing is tied to a single course yet.
+            </span>
+          ) : null}
+        </div>
+      ) : null}
 
       {loading ? (
         <div className="flex items-center gap-2.5 py-10 text-sm text-[var(--ink-soft)]">
@@ -217,6 +292,22 @@ export function MemorySection() {
                       ) : (
                         <>
                           <span className="min-w-0 flex-1 text-sm">{item.content}</span>
+                          <select
+                            className="input h-7 w-auto px-1.5 py-0 text-[11px]"
+                            value={item.course_id ?? ""}
+                            title="Where this applies"
+                            aria-label="Where this applies"
+                            onChange={(event) =>
+                              update(item.id, { course_id: event.target.value || null })
+                            }
+                          >
+                            <option value="">Everywhere</option>
+                            {courses.map((course) => (
+                              <option key={course.id} value={course.id}>
+                                {course.title}
+                              </option>
+                            ))}
+                          </select>
                           <span className="num text-[11px] text-[var(--ink-faint)]">
                             {Math.round(item.confidence * 100)}%
                           </span>
@@ -276,7 +367,9 @@ export function MemorySection() {
       <p className="text-xs leading-relaxed text-[var(--ink-faint)]">
         Memory is derived from your own activity using rules, not an extra model call, so it costs
         nothing to maintain. Pinned items are always sent to the tutor; archived ones never are.
-        {courses.length > 0 ? " Items tied to a course only apply inside that course." : ""}
+        {courses.length > 0
+          ? " An item set to Everywhere is sent to the tutor in every course; one tied to a course is only sent inside it."
+          : ""}
       </p>
     </div>
   );

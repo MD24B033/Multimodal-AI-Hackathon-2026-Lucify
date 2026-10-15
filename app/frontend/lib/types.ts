@@ -229,6 +229,7 @@ export type Dashboard = {
   overall_mastery: number;
   topics_tracked: number;
   interactions: number;
+  graded_interactions?: number;
   due_for_review: number;
   mastery: Mastery[];
   weak_topics: Mastery[];
@@ -240,7 +241,7 @@ export type Dashboard = {
     blocked_by: string[];
     priority: number;
   }[];
-  mastery_history: { date: string; mastery: number; events: number }[];
+  mastery_history: { date: string; mastery: number; events: number; graded_events?: number }[];
   recent_assessments: {
     id: string;
     title: string;

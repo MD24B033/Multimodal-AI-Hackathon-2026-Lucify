@@ -203,7 +203,7 @@ export function AnalyticsSection() {
             <Panel>
               <SectionHead
                 title="Learning curve"
-                description="Mastery estimate after each day of activity."
+                description="Mastery estimate after each day of activity in this course."
               />
               {dashboard.mastery_history.length > 1 ? (
                 <ResponsiveContainer width="100%" height={240}>
@@ -223,7 +223,22 @@ export function AnalyticsSection() {
                       dataKey="mastery"
                       stroke="url(#curve)"
                       strokeWidth={2.5}
-                      dot={{ r: 3, fill: "var(--iris)" }}
+                      // A day backed by graded answers is stronger evidence than one
+                      // inferred from conversation, so it is drawn as a filled point.
+                      dot={(props) => {
+                        const graded = Number(props.payload?.graded_events ?? 0) > 0;
+                        return (
+                          <circle
+                            key={props.key}
+                            cx={props.cx}
+                            cy={props.cy}
+                            r={graded ? 5 : 3}
+                            fill={graded ? "var(--mint)" : "var(--bg-1)"}
+                            stroke="var(--iris)"
+                            strokeWidth={2}
+                          />
+                        );
+                      }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -231,9 +246,27 @@ export function AnalyticsSection() {
                 <Blank
                   icon={<TrendingUp className="h-5 w-5" />}
                   title="Not enough history"
-                  description="The curve appears once you have activity on more than one day."
+                  description="The curve appears once you have activity on more than one day in this course."
                 />
               )}
+
+              {dashboard.mastery_history.length > 1 ? (
+                <p className="mt-3 text-[11px] leading-relaxed text-[var(--ink-faint)]">
+                  {(dashboard.graded_interactions ?? 0) > 0 ? (
+                    <>
+                      Filled points are days with graded answers
+                      {" "}({dashboard.graded_interactions} so far). Hollow points moved on
+                      conversation alone, which is a weaker signal.
+                    </>
+                  ) : (
+                    <>
+                      No graded answers in this course yet, so every point here was inferred
+                      from conversation. Take an assessment and the curve starts resting on
+                      evidence instead.
+                    </>
+                  )}
+                </p>
+              ) : null}
             </Panel>
           </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { ChevronLeft, ChevronRight, MessageSquarePlus, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, MessageSquarePlus, Trash2, type LucideIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Hint } from "@/components/hint";
@@ -12,6 +12,11 @@ export type SessionRow = {
   title: string;
   message_count?: number;
   updated_at?: string;
+  /** Replaces the message-count line. A list of past quizzes wants a score and a
+   *  length, not "empty". */
+  subtitle?: string;
+  /** A short right-aligned marker, such as a score. */
+  badge?: string;
 };
 
 function when(value?: string): string {
@@ -39,6 +44,7 @@ export function SessionRail({
   label = "Sessions",
   newLabel = "New session",
   emptyNote = "Nothing here yet.",
+  newIcon: NewIcon = MessageSquarePlus,
 }: {
   sessions: SessionRow[];
   activeId: string | null;
@@ -49,6 +55,7 @@ export function SessionRail({
   label?: string;
   newLabel?: string;
   emptyNote?: string;
+  newIcon?: LucideIcon;
 }) {
   const [collapsed, setCollapsed] = useState(false);
 
@@ -88,7 +95,7 @@ export function SessionRail({
         </Hint>
         <Hint label={newLabel} side="right">
           <button type="button" className="btn px-2 py-2" onClick={onCreate} aria-label={newLabel}>
-            <MessageSquarePlus className="h-4 w-4" />
+            <NewIcon className="h-4 w-4" />
           </button>
         </Hint>
       </div>
@@ -105,7 +112,7 @@ export function SessionRail({
         <div className="flex items-center gap-1">
           <Hint label={newLabel}>
             <button type="button" className="btn px-1.5 py-1" onClick={onCreate} aria-label={newLabel}>
-              <MessageSquarePlus className="h-3.5 w-3.5" />
+              <NewIcon className="h-3.5 w-3.5" />
             </button>
           </Hint>
           <Hint label={`Hide ${label.toLowerCase()}`}>
@@ -140,14 +147,20 @@ export function SessionRail({
                       selected ? "bg-[var(--glass-strong)]" : "hover:bg-[var(--glass)]",
                     )}
                   >
-                    <span
-                      className="block truncate text-[13px] leading-tight"
-                      style={{ color: selected ? "var(--iris)" : "var(--ink)" }}
-                    >
-                      {item.title}
+                    <span className="flex items-center gap-1.5">
+                      <span
+                        className="min-w-0 flex-1 truncate text-[13px] leading-tight"
+                        style={{ color: selected ? "var(--iris)" : "var(--ink)" }}
+                      >
+                        {item.title}
+                      </span>
+                      {item.badge ? (
+                        <span className="num shrink-0 text-[10.5px] opacity-80">{item.badge}</span>
+                      ) : null}
                     </span>
                     <span className="mt-0.5 block text-[10.5px] leading-tight opacity-65">
-                      {item.message_count ? `${item.message_count} messages` : "empty"}
+                      {item.subtitle ??
+                        (item.message_count ? `${item.message_count} messages` : "empty")}
                       {item.updated_at ? ` · ${when(item.updated_at)}` : ""}
                     </span>
                   </button>

@@ -26,6 +26,9 @@ class MemoryUpdate(BaseModel):
     kind: MemoryKind | None = None
     pinned: bool | None = None
     archived: bool | None = None
+    # Explicitly nullable: setting it to null is how an item becomes global again,
+    # which is a different intent from leaving the field out.
+    course_id: uuid.UUID | None = None
 
 
 def serialize(memory: LearnerMemory) -> dict:
@@ -111,6 +114,8 @@ def update_memory(
         memory.content = data["content"].strip()
         memory.origin = "manual"
         memory.confidence = 0.9
+    if "course_id" in data:
+        memory.course_id = data["course_id"]
     if data.get("kind") is not None:
         memory.kind = data["kind"]
     if "pinned" in data and data["pinned"] is not None:

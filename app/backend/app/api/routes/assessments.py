@@ -4,7 +4,7 @@ import uuid
 
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.api.deps import DbSession
@@ -112,7 +112,33 @@ def list_assessments(
     if student_id:
         statement = statement.where(Assessment.student_id == student_id)
     assessments = session.scalars(statement.limit(50)).all()
-    return [serialize_assessment(assessment) for assessment in assessments]
+
+    # The score and length belong to the list: a history rail that cannot show how you
+    # did is just a list of dates.
+    reports = {
+        report.assessment_id: report
+        for report in session.scalars(
+            select(AssessmentReport).where(
+                AssessmentReport.assessment_id.in_([a.id for a in assessments])
+            )
+        ).all()
+    }
+    counts = dict(
+        session.execute(
+            select(AssessmentItem.assessment_id, func.count(AssessmentItem.id))
+            .where(AssessmentItem.assessment_id.in_([a.id for a in assessments]))
+            .group_by(AssessmentItem.assessment_id)
+        ).all()
+    )
+
+    payload = []
+    for assessment in assessments:
+        row = serialize_assessment(assessment)
+        report = reports.get(assessment.id)
+        row["score_percent"] = round(report.score_percent, 1) if report else None
+        row["question_count"] = counts.get(assessment.id, 0)
+        payload.append(row)
+    return payload
 
 
 @router.get("/{assessment_id}")

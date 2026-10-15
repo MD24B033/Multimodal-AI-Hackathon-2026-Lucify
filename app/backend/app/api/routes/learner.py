@@ -164,8 +164,24 @@ def dashboard(student_id: uuid.UUID, course_id: uuid.UUID, session: Session = Db
         ).all()
     }
 
+    # Interactions carry a topic, and a topic belongs to a course, which is how this
+    # dashboard stays about the course it claims to be about.
+    in_course = (
+        select(Interaction.id)
+        .join(Topic, Topic.id == Interaction.topic_id)
+        .where(Interaction.student_id == student_id, Topic.course_id == course_id)
+    )
+    course_interaction_ids = in_course.scalar_subquery()
+
     interaction_count = session.scalar(
-        select(func.count(Interaction.id)).where(Interaction.student_id == student_id)
+        select(func.count(Interaction.id)).where(Interaction.id.in_(course_interaction_ids))
+    )
+
+    graded_count = session.scalar(
+        select(func.count(Interaction.id)).where(
+            Interaction.id.in_(course_interaction_ids),
+            Interaction.kind != "chat_turn",
+        )
     )
 
     history = session.execute(
@@ -173,8 +189,12 @@ def dashboard(student_id: uuid.UUID, course_id: uuid.UUID, session: Session = Db
             func.date_trunc("day", Interaction.created_at).label("day"),
             func.avg(Interaction.p_known_after),
             func.count(Interaction.id),
+            func.count(Interaction.id).filter(Interaction.kind != "chat_turn").label("graded"),
         )
-        .where(Interaction.student_id == student_id, Interaction.p_known_after.isnot(None))
+        .where(
+            Interaction.id.in_(course_interaction_ids),
+            Interaction.p_known_after.isnot(None),
+        )
         .group_by("day")
         .order_by("day")
     ).all()
@@ -194,13 +214,18 @@ def dashboard(student_id: uuid.UUID, course_id: uuid.UUID, session: Session = Db
         "mastery": [serialize_mastery(item) for item in snapshots],
         "weak_topics": [serialize_mastery(item) for item in weak],
         "next_up": learning_path(session, course_id, student_id, limit=5),
+        "graded_interactions": graded_count or 0,
         "mastery_history": [
             {
                 "date": day.isoformat(),
                 "mastery": round(float(average), 4),
                 "events": int(count),
+                # How much of that day's movement came from graded answers rather than
+                # from conversation. A curve driven only by chat signals is a weaker
+                # claim, and the page should be able to say so.
+                "graded_events": int(graded),
             }
-            for day, average, count in history
+            for day, average, count, graded in history
         ],
         "recent_assessments": [
             {
