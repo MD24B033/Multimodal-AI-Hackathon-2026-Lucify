@@ -365,39 +365,55 @@ remains far too small a sample to support any claim, and nothing here changes th
 
 ---
 
-## 9. The blocked experiment
+## 9. The held-out run, completed
 
-**The held-out generation benchmark has not been re-run to completion.** The Groq free
-tier's daily allowance ran out part-way through: the app began returning *"Daily token
-quota exhausted: 198,715 of 200,000 tokens"* from case 7 onward. Cases 1–6 produced
-genuine answers; 7–12 are quota artifacts, and RAGAS could not score at all.
+A fresh key removed the quota block and the benchmark ran on 2026-10-15 against a server
+pinned before the later edits of that session, so the numbers belong to one fixed build.
 
-Nothing partial was written to `results_v2/`, and no number in this report comes from
-those six cases. The baseline in §1 remains the only complete generation run, and the
-comparison it belongs to is outstanding.
+| Metric | Baseline 2026-10-14 | 2026-10-15 | |
+|---|---|---|---|
+| Faithfulness | 65.3% | **96.4%** | measurement corrected, see below |
+| Context recall | 62.5% | **100%** | measurement corrected |
+| Context precision | 68.8% | **90.4%** | measurement corrected |
+| Answer relevancy | 91.0% | 89.6% | |
+| Source hit rate | 75.0% | 85.7% | was scoring citations |
+| Mean reciprocal rank | 75.0% | 78.6% | was scoring citations |
+| Locator hit rate | not measured | 100% | new |
+| Citation hit rate | not measured | 71.4% | new, the old number under its real name |
+| Correct refusal rate | 100% | 100% | |
+| False refusal rate | 0% | 0% | |
 
-To finish it, once the daily quota resets:
+**Most of the headline movement is the measurement being fixed, not the system improving.**
+Faithfulness, context precision and context recall were previously judged against the one
+or two passages the model cited; they are now judged against the eight it was given. §1.2
+sets out why the old framing was wrong in both directions. Treat the two runs as measuring
+different things rather than as a before and after.
 
-```bash
-cd evaluation
-export GROQ_API_KEY=... ACCESS_KEY=...
-python run_eval.py --course "Deep Learning Foundations" \
-    --testset results/testset.json --out results_v2
-```
+Three further caveats:
 
-Expected from the changes already verified, and worth checking against:
+- **11 of 12 cases scored.** One answerable case hit a transient `provider_unavailable`
+  and is declared under `failed_cases` rather than counted, so the RAGAS and retrieval
+  denominators are 7, against 8 in the baseline.
+- `source_precision_at_k` falls from 50% to 10.7% purely because the denominator changed
+  from "the citations" to "the eight retrieved passages". One relevant passage in eight is
+  12.5%, so 10.7% is near the ceiling for single-answer questions.
+- The sample is twelve cases. Nothing here deserves a third significant figure.
 
-- **source_hit_rate 0.75 → 0.875** and **MRR 0.75 → 0.812** — already measured
-  token-free on the held-out set, so these should reproduce exactly.
-- **false_refusal_rate stays 0.0** — all 8 answerable cases clear the gate by margin.
-- **correct_refusal_rate stays 1.0**, with 2 of 4 now refused pre-generation.
-- **faithfulness should move, and may move down** — it is now judged against the eight
-  passages the generator saw rather than the one or two it cited. That is a fairer and
-  harder test, and case 7's undeserved 1.0 should fall. A lower number here would be a
-  more honest one; it is not a regression.
+Latency, measured two ways because they answer different questions:
 
-Run everything else first — the token-free benchmark and both test suites — since they
-need no quota and catch most regressions.
+| | |
+|---|---|
+| One grounded answer, quota free | **1.1–1.5 s** |
+| Median across the back-to-back benchmark | 56.3 s |
+| An off-material question, refused before any model call | **~250 ms** |
+
+The first is what a learner feels. The second is what a benchmark that fires twelve
+questions in seven minutes feels, and it is the 8,000 token minute, not the code.
+
+### What the run did not cover
+
+Personalization was skipped on this pass (`--skip-personalization`), so the figures in §7
+are still those of the 2026-10-14 run. Re-running it is the obvious next measurement.
 
 ## 10. Reproducing
 

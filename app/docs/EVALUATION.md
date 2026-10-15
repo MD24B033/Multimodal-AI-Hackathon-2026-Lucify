@@ -8,15 +8,35 @@ generated `RESULTS.md`. This document is the methodology.
 
 ## Results
 
-Latest run, 2026-10-14, against the **Deep Learning Foundations** course (327 units, 37 topics,
+Latest run, 2026-10-15, against the **Deep Learning Foundations** course (327 units, 37 topics,
 3 sources). Full report: [../../evaluation/results/RESULTS.md](../../evaluation/results/RESULTS.md).
 
-| RAGAS | | Source location | | Refusal | |
+| RAGAS | | Retrieval | | Refusal | |
 |---|---|---|---|---|---|
-| Faithfulness | 65.3% | Source hit rate | 75.0% | Correct refusal rate | 100.0% |
-| Answer relevancy | 91.0% | Mean reciprocal rank | 75.0% | False refusal rate | 0.0% |
-| Context precision | 68.8% | Source recall | 75.0% | Refusal F1 | 100.0% |
-| Context recall | 62.5% | Precision@k | 50.0% | | |
+| Faithfulness | 96.4% | Source hit rate | 85.7% | Correct refusal rate | 100% |
+| Answer relevancy | 89.6% | Mean reciprocal rank | 78.6% | False refusal rate | 0% |
+| Context precision | 90.4% | Locator hit rate | 100% | Refusal F1 | 100% |
+| Context recall | 100% | Citation hit rate | 71.4% | | |
+
+**Read these against three things.**
+
+1. **One case never reached the model** (a transient provider error). It is declared under
+   `failed_cases` and excluded from every metric, so the RAGAS and retrieval figures rest on 7
+   answerable cases, not 8. A run with failures is reported as incomplete rather than quietly
+   scored.
+2. **They are not comparable with the 2026-10-14 baseline**, kept as `rag_baseline_2026-10-14.json`.
+   That run judged faithfulness, context precision and context recall against the one or two
+   passages the model *cited*; this one judges them against the eight it was *given*. The old
+   measurement marked a claim unfaithful whenever its support sat in a retrieved-but-uncited
+   passage, and marked a wrong answer faithful whenever it cited whatever it used. The jump from
+   65.3% to 96.4% is mostly that correction, not the system improving overnight.
+3. **Retrieval is reported at three levels now**, because they fail for different reasons: whether
+   the exact chunk reached the context (85.7%), whether any chunk from the right page or slide did
+   (100%), and whether the model then pointed the learner at it (71.4%).
+
+`source_precision_at_k` reads 10.7% because it is now computed over the whole eight-passage context
+rather than over the one or two citations. One relevant passage in eight is 12.5%, which is the
+ceiling for a single-answer question; the figure is kept for completeness rather than as a target.
 
 Personalization, adaptive against a non-adaptive control with everything else identical:
 
@@ -25,9 +45,22 @@ Personalization, adaptive against a non-adaptive control with everything else id
 | adaptive | 1.6% | 3.6% | 24.4% | 0.0% |
 | control | 1.5% | 4.5% | 25.6% | 0.0% |
 
-The adaptive arm gains 11.6% more true mastery than the control and stays better calibrated, on
-twelve questions per arm — indicative of direction, not a confidence-interval-bearing result. Read
-it next to the threats to validity at the end of this document.
+The adaptive arm gains 11.6% more true mastery than the control on twelve questions per arm —
+indicative of direction, not a confidence-interval-bearing result. The calibration figure is
+discussed in [../../evaluation/ENGINEERING_REPORT.md](../../evaluation/ENGINEERING_REPORT.md):
+most of it is the model having no evidence for topics no question reached, not the model being
+wrong where it does.
+
+### Latency
+
+| | |
+|---|---|
+| A single grounded answer, quota free | **~1.1–1.5 s** |
+| Median across a back-to-back benchmark run | 56.3 s |
+
+Both are true and they measure different things. One learner asking one question waits about a
+second; twelve questions asked back to back exceed 8,000 tokens a minute and queue behind the free
+tier. An off-material question is refused in ~250 ms without calling a model at all.
 
 ## Why these metrics
 

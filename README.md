@@ -33,16 +33,24 @@ shortcut retrieval.
 
 | | | | |
 |---|---|---|---|
-| Answer relevancy | 91.0% | Source hit rate | 75.0% |
-| Faithfulness | 65.3% | Mean reciprocal rank | 75.0% |
-| Context precision | 68.8% | Correct refusal rate | 100.0% |
-| Context recall | 62.5% | False refusal rate | 0.0% |
+| Faithfulness | 96.4% | Source hit rate | 85.7% |
+| Answer relevancy | 89.6% | Mean reciprocal rank | 78.6% |
+| Context precision | 90.4% | Locator hit rate | 100% |
+| Context recall | 100% | Correct / false refusal | 100% / 0% |
 
-Every off-material question was refused, and no answerable question was refused wrongly. The
-adaptive learner model gains 11.6% more true mastery than an otherwise identical non-adaptive
-control arm. Sample sizes are small because the whole system runs inside a free Groq tier of 8,000
-tokens per minute — the threats to validity are stated in
-[app/docs/EVALUATION.md](app/docs/EVALUATION.md).
+Measured 2026-10-15 on 11 of 12 cases: one hit a transient provider error and is declared
+rather than scored, so the answerable denominator is 7. **These are not like for like with the
+earlier run** kept at [rag_baseline_2026-10-14.json](evaluation/results/rag_baseline_2026-10-14.json):
+the judge now sees the passages the generator was actually given rather than only the one or two it
+cited, which is a fairer test and moves faithfulness and context recall most of all. The sample is
+small either way.
+
+Every off-material question was refused and no answerable question was refused wrongly. The adaptive
+learner model gains 11.6% more true mastery than an otherwise identical non-adaptive control arm.
+Sample sizes are small throughout because the whole system runs inside a free Groq tier of 8,000
+tokens per minute — the threats to validity are in
+[app/docs/EVALUATION.md](app/docs/EVALUATION.md), and the audit that produced these corrections is
+in [evaluation/ENGINEERING_REPORT.md](evaluation/ENGINEERING_REPORT.md).
 
 ## Running it
 

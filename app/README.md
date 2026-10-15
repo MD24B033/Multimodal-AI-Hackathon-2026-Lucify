@@ -143,16 +143,21 @@ rate limit throttles.
 
 ## Evaluation
 
-Measured on the Deep Learning Foundations course, 2026-10-14 — full report in
+Measured on the Deep Learning Foundations course, 2026-10-15 — full report in
 [../evaluation/results/RESULTS.md](../evaluation/results/RESULTS.md), methodology in
 [docs/EVALUATION.md](docs/EVALUATION.md).
 
 | | | | |
 |---|---|---|---|
-| Answer relevancy | 91.0% | Source hit rate | 75.0% |
-| Faithfulness | 65.3% | Mean reciprocal rank | 75.0% |
-| Context precision | 68.8% | Correct refusal rate | 100.0% |
-| Context recall | 62.5% | False refusal rate | 0.0% |
+| Faithfulness | 96.4% | Source hit rate | 85.7% |
+| Answer relevancy | 89.6% | Mean reciprocal rank | 78.6% |
+| Context precision | 90.4% | Locator hit rate | 100% |
+| Context recall | 100% | Correct / false refusal | 100% / 0% |
+
+Scored on 11 of 12 cases; one hit a transient provider error and is declared rather than counted,
+leaving an answerable denominator of 7. The previous run is kept beside it as
+`rag_baseline_2026-10-14.json`, and the two are **not** like for like: the judge now sees the
+passages the generator was given rather than only those it cited.
 
 The adaptive learner model gains 11.6% more true mastery than an otherwise identical non-adaptive
 control arm, with lower calibration error and no repeated questions.
