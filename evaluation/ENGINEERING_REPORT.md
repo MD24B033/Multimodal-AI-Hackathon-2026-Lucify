@@ -242,7 +242,75 @@ answers per minute**. No latency target below that is achievable without a paid 
 
 ---
 
-## 6. Personalization: the calibration number was measuring the wrong thing
+## 6. Throughput: ingestion and assessment
+
+Both were reported as slow. They are slow for the same reason, and it is not the code
+path: **everything is bound by 8,000 tokens per minute**, and Groq admits a request
+against `prompt + max_completion_tokens` rather than what the model actually writes.
+So the levers are (a) spend fewer tokens per unit of work, and (b) stop booking tokens
+that are never spent. Parallelism is not a lever — at roughly 1,100 tokens per vision
+call the budget allows about seven calls a minute, while the wall clock would allow
+fifteen.
+
+Measured over the 228 vision calls in `llm_cache` on the demo corpus:
+
+| | prompt (p50) | completion (p50) | completion (p95) | completion (max) |
+|---|---|---|---|---|
+| vision (pages, figures, keyframes) | 920 | 174 | 536 | 712 |
+
+### What was wrong
+
+- **Unreconciled reservations.** The local bucket was already reconciled against real
+  usage; the shared Upstash budget was not, so the unspent half of every reservation
+  stayed booked for the rest of the minute. Fixed (§5).
+- **A page description booked 1,100 completion tokens** and used a median of 174, with
+  the longest observed at 712. Now 850, which keeps headroom above everything measured
+  while booking 250 fewer tokens per page.
+- **A six-question quiz cost about nine calls**: one generation call per target topic,
+  each re-sending the system prompt and its own excerpts, plus **one verification call
+  per candidate question**, each re-sending the excerpts again. Against an 8,000 token
+  minute that spilled across several windows before the first question appeared.
+
+### What changed
+
+Generation now makes **one call for all targets**, and verification reviews **the whole
+batch in one call**. Each target keeps its own question count and its own IRT-chosen
+difficulty — the batching changes how many calls it takes, not what is asked for. The
+excerpts, which overlap between topics anyway, are sent once.
+
+Measured on a four-candidate batch, verification alone:
+
+| | calls | actual tokens | reserved |
+|---|---|---|---|
+| before | 4 | 2,740 | 4,840 |
+| after | 1 | 2,059 | 2,869 |
+
+End to end, a six-question quiz now issues **two model calls** (one generation, one
+verification) where it previously issued around nine.
+
+### What did not change, and why
+
+Two hypotheses were tested and rejected rather than shipped:
+
+- **Wasted vision calls.** The expectation was that many figures come back as
+  decorative or duplicate and are discarded after being paid for. Measured: **0 of 228
+  vision calls** returned `DECORATIVE`/`NO_CONTENT` or an unusably short description.
+- **Pre-call keyframe deduplication.** Near-duplicate frames are currently filtered
+  *after* the call, which looks wasteful. On the 49-minute lecture almost none of the
+  33 extracted frames were discarded, so moving the filter earlier would save nothing.
+
+Image size was left alone too: 1,100px at quality 82 is already modest, and shrinking
+it to save prompt tokens would risk the slide text that the vision pass exists to read.
+
+### The honest ceiling
+
+With 8,000 tokens per minute and ~1,100 tokens per page, ingestion cannot exceed about
+**seven pages per minute** however it is written. The measured corpus figures — 64
+pages in 17 minutes, a 49-minute lecture in 15 — are consistent with that, and the
+remaining gap is the reservation friction the fixes above address. Anything faster
+needs a paid tier, not better code.
+
+## 7. Personalization: the calibration number was measuring the wrong thing
 
 Published: mean calibration error 24.4% (adaptive) and 25.6% (control). Per learner:
 
@@ -277,7 +345,7 @@ remains far too small a sample to support any claim, and nothing here changes th
 
 ---
 
-## 7. Limitations
+## 8. Limitations
 
 - **The dev set is at ceiling for retrieval** (100% hit at k=8 for every variant), so it
   cannot discriminate between retrieval strategies. Its value is in the refusal signal,
@@ -297,7 +365,7 @@ remains far too small a sample to support any claim, and nothing here changes th
 
 ---
 
-## 8. The blocked experiment
+## 9. The blocked experiment
 
 **The held-out generation benchmark has not been re-run to completion.** The Groq free
 tier's daily allowance ran out part-way through: the app began returning *"Daily token
@@ -331,7 +399,7 @@ Expected from the changes already verified, and worth checking against:
 Run everything else first — the token-free benchmark and both test suites — since they
 need no quota and catch most regressions.
 
-## 9. Reproducing
+## 10. Reproducing
 
 ```bash
 # token-free: retrieval and the refusal signal, any number of times
@@ -350,7 +418,7 @@ cd evaluation   && python -m pytest tests/ -q
 
 ---
 
-## 10. Changes made
+## 11. Changes made
 
 | File | Change |
 |---|---|

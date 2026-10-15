@@ -64,7 +64,12 @@ class Settings(BaseSettings):
     notes_context_chars: int = 5500
     notes_top_k: int = 8
     generation_max_tokens: int = 4000
-    page_image_max_tokens: int = 1100
+    # Groq admits a request against prompt + max_completion_tokens, so this ceiling is
+    # reserved on every page whatever the model writes. Measured over 228 vision calls
+    # on the demo corpus: median completion 174 tokens, p95 536, longest 712. 850 keeps
+    # headroom above the longest observed description while booking 250 fewer tokens
+    # per page than the old 1100.
+    page_image_max_tokens: int = 850
     keyframe_max_tokens: int = 500
     warm_embedder_on_start: bool = True
 
