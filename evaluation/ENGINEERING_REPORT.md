@@ -302,13 +302,58 @@ Two hypotheses were tested and rejected rather than shipped:
 Image size was left alone too: 1,100px at quality 82 is already modest, and shrinking
 it to save prompt tokens would risk the slide text that the vision pass exists to read.
 
+### What the provider actually charges
+
+The reservation was built on a claim in the code that turned out to be false:
+
+> Groq admits a request against max_completion_tokens, not actual usage, so reserving
+> less than that guarantees a 429.
+
+Measured against the API, two identical 21-token replies moved the remaining-tokens
+header by the same amount at either ceiling:
+
+| max_tokens | remaining after | actual used |
+|---|---|---|
+| 50 | 7,931 | 21 |
+| 3,000 | 7,979 | 21 |
+
+The ceiling is charged on what a call spends. A page of vision booking 1,770 tokens to
+spend 919 was therefore holding back twice what it used, on a bucket that refills at
+8,000 a minute.
+
+Limits are also **per model**, not per account: `gpt-oss-120b` and `qwen3.8-27b` each
+report 8,000 tokens a minute. The app metered every model through one bucket, so an
+ingest calling the vision model for pages and the text model for the topic map competed
+with itself for half the allowance it had.
+
+### What each fix was worth
+
+Measured by driving the real `TokenBucket` from empty for twelve simulated minutes at
+the measured cost of a page (919 tokens, 0.7s of provider time):
+
+| regime | pages/min | 64-page textbook |
+|---|---|---|
+| book 1,770 and hold it | 4.5 | 14.2 min |
+| **book 1,770, refund the unspent part** | **8.6** | **7.4 min** |
+| book 1,220, refund the unspent part | 8.7 | 7.4 min |
+
+**Refunding the reservation is the whole ingestion win — 1.9x.** Sizing the reservation
+from observed usage adds about 1% to sustained throughput, because once the unspent part
+comes back immediately the sustained rate is set by what calls actually cost, not by what
+they booked. It is still worth having: it cuts the wait for the first page from 13.3s to
+9.2s when the bucket is empty, and it lowers contention when several callers share one
+model's allowance. But it is not the throughput fix, and an earlier draft of this report
+claimed it was.
+
 ### The honest ceiling
 
-With 8,000 tokens per minute and ~1,100 tokens per page, ingestion cannot exceed about
-**seven pages per minute** however it is written. The measured corpus figures — 64
-pages in 17 minutes, a 49-minute lecture in 15 — are consistent with that, and the
-remaining gap is the reservation friction the fixes above address. Anything faster
-needs a paid tier, not better code.
+With 8,000 tokens a minute and ~919 tokens a page, ingestion cannot exceed **8.7 pages a
+minute** however it is written, and the measured configuration now sits at 8.6.
+
+The harder limit is the day. At the same cost per page, the free tier's 200,000 tokens a
+day is about **215 pages in total** across ingestion, tutoring, assessment generation and
+evaluation combined. That is the constraint worth quoting to anyone asking why a large
+course takes a while, and no amount of code changes it.
 
 ## 7. Personalization: the calibration number was measuring the wrong thing
 
