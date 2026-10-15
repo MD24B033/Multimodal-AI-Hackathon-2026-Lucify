@@ -212,18 +212,55 @@ def _result_from(payload: dict[str, Any]) -> VerificationResult:
     )
 
 
+def _estimate_tokens(text: str) -> int:
+    return max(1, len(text) // 4)
+
+
+def _chunk(questions: list[dict[str, Any]], context: str) -> list[list[int]]:
+    """Groups question indices so each call's input stays inside the verifier's own
+    per-minute input ceiling. The excerpts are re-sent per chunk, which is the price of
+    not having the whole review refused as one oversized request."""
+    budget = settings.verifier_input_budget - _estimate_tokens(context) - _estimate_tokens(
+        BATCH_VERIFIER_SYSTEM
+    )
+    groups: list[list[int]] = []
+    current: list[int] = []
+    used = 0
+    for index, question in enumerate(questions):
+        cost = _estimate_tokens(_render_question(question)) + 12
+        # Always place at least one question per chunk, even when the context alone
+        # has eaten the budget -- one request that may fail beats none at all.
+        if current and (used + cost > budget or len(current) >= 6):
+            groups.append(current)
+            current, used = [], 0
+        current.append(index)
+        used += cost
+    if current:
+        groups.append(current)
+    return groups
+
+
 def verify_batch(questions: list[dict[str, Any]], context: str) -> list[VerificationResult]:
-    """One review covering every candidate from the same excerpts.
+    """Reviews candidates together, in as few calls as the input ceiling allows.
 
     Candidates in a batch are written from one set of at most five units, so sending
     the excerpts once per question meant paying for the same context up to eight times
-    over. On an 8,000 token minute that was the difference between a quiz arriving
-    inside one window and spilling into the next.
+    over. Sending them once for all of them, however, builds a request large enough to
+    be refused outright, so the batch is split to fit.
     """
     if not questions:
         return []
     if len(questions) == 1:
         return [verify_question(questions[0], context)]
+
+    groups = _chunk(questions, context)
+    if len(groups) > 1:
+        results: list[VerificationResult] = [None] * len(questions)  # type: ignore[list-item]
+        for group in groups:
+            subset = [questions[index] for index in group]
+            for index, result in zip(group, verify_batch(subset, context)):
+                results[index] = result
+        return results
 
     rendered = "\n\n".join(
         f"QUESTION {index}\n{_render_question(question)}"

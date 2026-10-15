@@ -95,6 +95,11 @@ class Settings(BaseSettings):
     # by this much. Chosen on evaluation/datasets/dev.json: no false refusals there,
     # while catching five of eight off-material questions before a token is spent.
     grounding_margin: float = 0.028
+    # The verifier model carries its own input-tokens-per-minute ceiling, lower than
+    # the account's overall budget: a single request of 7,032 input tokens was refused
+    # with "Limit 7000". Verification batches are split to stay under this, with room
+    # for the question text the estimate cannot see exactly.
+    verifier_input_budget: int = 4200
     novelty_threshold: float = 0.88
 
     storage_dir: Path = Field(default=BACKEND_ROOT / "storage")

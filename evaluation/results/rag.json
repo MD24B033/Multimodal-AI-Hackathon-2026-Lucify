@@ -1,22 +1,38 @@
 {
   "metrics": {
-    "source_hit_rate": 0.75,
-    "mean_reciprocal_rank": 0.75,
-    "source_precision_at_k": 0.5,
-    "source_recall": 0.75,
-    "answerable_cases": 8,
+    "failed_cases": 1,
+    "failure_reasons": {
+      "provider_unavailable": 1
+    },
+    "scored_cases": 11,
+    "source_hit_rate": 0.8571,
+    "mean_reciprocal_rank": 0.7857,
+    "source_precision_at_k": 0.1071,
+    "source_recall": 0.8571,
+    "citation_hit_rate": 0.7143,
+    "citation_precision": 0.5,
+    "answerable_cases": 7,
+    "locator_hit_rate": 1.0,
     "off_material_cases": 4,
+    "ambiguous_cases": 0,
+    "ambiguous_handled": null,
     "correct_refusal_rate": 1.0,
     "false_refusal_rate": 0.0,
     "refusal_f1": 1.0,
-    "latency_median_ms": 58456,
-    "latency_p90_ms": 60134,
-    "latency_max_ms": 61112,
+    "latency_median_ms": 56293,
+    "latency_p90_ms": 59025,
+    "latency_max_ms": 99199,
     "total_cases": 12,
-    "faithfulness": 0.6531,
-    "answer_relevancy": 0.9098,
-    "llm_context_precision_with_reference": 0.6875,
-    "context_recall": 0.625
+    "faithfulness": 0.9637,
+    "faithfulness_n": 7,
+    "answer_relevancy": 0.8965,
+    "answer_relevancy_n": 7,
+    "llm_context_precision_with_reference": 0.9043,
+    "llm_context_precision_with_reference_n": 7,
+    "context_recall": 1.0,
+    "context_recall_n": 7,
+    "ragas_cases": 7,
+    "ragas_context_source": "retrieved"
   },
   "cases": [
     {
@@ -25,19 +41,33 @@
       "reference_answer": "If a perceptron had no inputs, its weighted sum would always be zero, so it would output 1 when the bias b\u202f>\u202f0 and 0 when b\u202f\u2264\u202f0, i.e., a fixed value independent of any input.",
       "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 14",
       "modality": "text",
-      "answer": "If a perceptron had no inputs, its weighted sum \\(\\sum_j w_j x_j\\) would always be zero, so its output would depend only on the bias. It would output **1** when the bias \\(b > 0\\) and **0** when \\(b \\le 0\\) [1].",
+      "answer": "If a perceptron had no inputs, its weighted sum would always be zero, so its output would depend only on the bias: it would output **1 when the bias\u202fb\u202fis greater than\u202f0**, and **0 when the bias\u202fb\u202fis less than or equal to\u202f0**.[1]",
       "grounding_status": "grounded",
       "coverage": 0.8299962979557352,
       "refused": false,
       "retrieved_ground_truth": true,
+      "cited_ground_truth": true,
+      "margin": 0.09949605544432583,
+      "failure": null,
+      "category": "unspecified",
+      "retrieved_context": [
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 14",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 16",
+        "MIT 6.S191 Lecture 1 recording \u2014 24:27",
+        "MIT 6.S191 Lecture 1 recording \u2014 21:34",
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 37",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 18",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 12",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 22"
+      ],
       "retrieved": [
         "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 Page 14"
       ],
-      "latency_ms": 22239,
+      "latency_ms": 99199,
       "scores": {
         "faithfulness": 1.0,
-        "answer_relevancy": 0.9679,
-        "llm_context_precision_with_reference": 1.0,
+        "answer_relevancy": 0.9213,
+        "llm_context_precision_with_reference": 0.747,
         "context_recall": 1.0
       }
     },
@@ -47,20 +77,34 @@
       "reference_answer": "Activation functions are important because they introduce non-linearities into the network, allowing it to approximate arbitrarily complex functions, whereas linear activation functions only produce linear decision boundaries regardless of network size.",
       "ground_truth_locator": "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 24",
       "modality": "figure",
-      "answer": "Activation functions are important because they introduce non\u2011linearities into a neural network. Without non\u2011linear activation functions, a network\u2014no matter how many layers or neurons it has\u2014can only produce linear decision boundaries, which limits its ability to separate complex, intermingled data patterns. By adding non\u2011linearities, the network can approximate arbitrarily complex functions and create the wavy, non\u2011linear classification boundaries needed for tasks like distinguishing intertwined red and green points.",
+      "answer": "Activation functions are important because they introduce non\u2011linearities into a neural network. Without non\u2011linear activation, the network can only produce linear decision boundaries regardless of its depth or number of neurons, limiting its ability to model complex patterns. By adding non\u2011linear functions, the network can approximate arbitrarily complex functions and create more flexible decision boundaries.",
       "grounding_status": "grounded",
       "coverage": 0.8535280482032317,
       "refused": false,
       "retrieved_ground_truth": true,
+      "cited_ground_truth": true,
+      "margin": 0.08146911848739391,
+      "failure": null,
+      "category": "unspecified",
+      "retrieved_context": [
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 24",
+        "MIT 6.S191 Lecture 1 recording \u2014 15:48",
+        "MIT 6.S191 Lecture 1 recording \u2014 14:20",
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 23",
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 22",
+        "MIT 6.S191 Lecture 1 recording \u2014 16:33",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 18",
+        "MIT 6.S191 Lecture 1 recording \u2014 15:45"
+      ],
       "retrieved": [
         "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning Slide 24",
-        "MIT 6.S191 Lecture 1 recording 16:33"
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning Slide 23"
       ],
-      "latency_ms": 58456,
+      "latency_ms": 1513,
       "scores": {
-        "faithfulness": 0.875,
+        "faithfulness": 1.0,
         "answer_relevancy": 0.9472,
-        "llm_context_precision_with_reference": 1.0,
+        "llm_context_precision_with_reference": 0.9821,
         "context_recall": 1.0
       }
     },
@@ -70,19 +114,33 @@
       "reference_answer": "\u03c1C is the gradient vector that relates changes in the variable v to changes in the function C; it can be thought of as a single vector defined in the notation.",
       "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 26",
       "modality": "text",
-      "answer": "In the equations, \\(\\rho_C\\) denotes the **gradient vector of the cost function \\(C\\)** with respect to the parameters \\(v\\). It is defined as the vector of partial derivatives \\(\\left[\\frac{\\partial C}{\\partial v_1},\\frac{\\partial C}{\\partial v_2},\\dots\\right]^T\\). Thinking of \\(\\rho_C\\) as a single mathematical object signals that it is the gradient, which tells how changes in the parameters \\(v\\) affect the cost \\(C\\) and guides the choice of parameter updates to decrease \\(C\\) [2][1].",
+      "answer": "In the equations, \\(\\rho_C\\) denotes the **gradient vector of the cost function \\(C\\)**. It is the vector of partial derivatives of \\(C\\) with respect to each component of the parameter vector \\(v\\) (or the activations, depending on context). This notation signals that \\(\\rho_C\\) is a single mathematical object\u2014a vector\u2014that tells how changes in the parameters affect the cost, and it is used to guide the choice of parameter updates that decrease \\(C\\)\u202f[2][1].",
       "grounding_status": "grounded",
       "coverage": 0.8220847355076842,
       "refused": false,
       "retrieved_ground_truth": true,
+      "cited_ground_truth": true,
+      "margin": 0.13963875871438935,
+      "failure": null,
+      "category": "unspecified",
+      "retrieved_context": [
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 26",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 26",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 52",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 54",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 55",
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 20",
+        "MIT 6.S191 Lecture 1 recording \u2014 14:15",
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 28"
+      ],
       "retrieved": [
         "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 Page 26",
         "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 Page 26"
       ],
-      "latency_ms": 60134,
+      "latency_ms": 58080,
       "scores": {
-        "faithfulness": 0.8,
-        "answer_relevancy": 0.8737,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.9013,
         "llm_context_precision_with_reference": 1.0,
         "context_recall": 1.0
       }
@@ -93,20 +151,34 @@
       "reference_answer": "The input layer contains 784 neurons because each input image is 28 by 28 pixels, giving 28\u202f\u00d7\u202f28\u202f=\u202f784 input pixel values.",
       "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 21",
       "modality": "text",
-      "answer": "The input layer contains **784 neurons** \u2013 one for each pixel of the 28\u202f\u00d7\u202f28\u2011pixel image that represents a handwritten digit. This design is used because the network receives the raw pixel values as its inputs, so each of the 784 pixel intensities is fed into its own input neuron\u30101\u2020L1-L4\u3011\u30102\u2020L1-L3\u3011.",
+      "answer": "The input layer contains **784 neurons**. This number comes from the size of each digit image: the training data are 28\u202f\u00d7\u202f28\u2011pixel grayscale images, and a separate input neuron is used for each pixel, so 28\u202f\u00d7\u202f28\u202f=\u202f784 input neurons\u30101\u2020L1-L4\u3011\u30102\u2020L1-L3\u3011. The reason for this design is that each neuron can directly receive the intensity value of one pixel, allowing the network to process the full raw image as its input.",
       "grounding_status": "grounded",
       "coverage": 0.8653790950775146,
       "refused": false,
       "retrieved_ground_truth": true,
+      "cited_ground_truth": true,
+      "margin": 0.0723777287699594,
+      "failure": null,
+      "category": "unspecified",
+      "retrieved_context": [
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 21",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 21",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 21",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 9",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 9",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 18",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 23",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 20"
+      ],
       "retrieved": [
         "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 Page 21",
         "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 Page 21"
       ],
-      "latency_ms": 61112,
+      "latency_ms": 59025,
       "scores": {
-        "faithfulness": 0.75,
-        "answer_relevancy": 0.91,
-        "llm_context_precision_with_reference": 0.5,
+        "faithfulness": 0.8571,
+        "answer_relevancy": 0.8469,
+        "llm_context_precision_with_reference": 0.8095,
         "context_recall": 1.0
       }
     },
@@ -116,21 +188,28 @@
       "reference_answer": "MSE loss is used for regression models that output continuous real numbers. It is computed as the average of the squared differences between the actual values y and the predicted values, e.g., in TensorFlow with `loss = tf.reduce_mean(tf.square(tf.subtract(y, predicted)))` or `loss = tf.keras.losses.MSE(y, predicted)`.",
       "ground_truth_locator": "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 49",
       "modality": "figure",
-      "answer": "Mean Squared Error (MSE) loss is used for **regression** problems, where the model predicts continuous real\u2011valued outputs. In TensorFlow it can be computed either by manually squaring the difference between the true labels `y` and the predictions and then taking the mean, e.g., `loss = tf.reduce_mean(tf.square(tf.subtract(y, predicted)))`, or by using the built\u2011in loss function `tf.keras.losses.MSE(y, predicted)`\u30101\u2020L1-L4\u3011.",
-      "grounding_status": "grounded",
+      "answer": "The tutor is temporarily unavailable. Please try again in a moment.",
+      "grounding_status": "refused",
       "coverage": 0.835877820621933,
       "refused": false,
       "retrieved_ground_truth": true,
-      "retrieved": [
-        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning Slide 49"
+      "cited_ground_truth": false,
+      "margin": 0.10304402942364099,
+      "failure": "provider_unavailable",
+      "category": "unspecified",
+      "retrieved_context": [
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 49",
+        "MIT 6.S191 Lecture 1 recording \u2014 35:34",
+        "MIT 6.S191 Lecture 1 recording \u2014 41:06",
+        "MIT 6.S191 Lecture 1 recording \u2014 30:06",
+        "MIT 6.S191 Lecture 1 recording \u2014 31:24",
+        "MIT 6.S191 Lecture 1 recording \u2014 35:15",
+        "MIT 6.S191 Lecture 1 recording \u2014 34:53",
+        "MIT 6.S191 Lecture 1 recording \u2014 32:06"
       ],
-      "latency_ms": 56607,
-      "scores": {
-        "faithfulness": 0.0,
-        "answer_relevancy": 0.9203,
-        "llm_context_precision_with_reference": 1.0,
-        "context_recall": 0.0
-      }
+      "retrieved": [],
+      "latency_ms": 59185,
+      "scores": {}
     },
     {
       "question": "What equation describes how a perceptron computes its output \u0177 during forward propagation, and how can it be expressed using vector notation?",
@@ -138,18 +217,31 @@
       "reference_answer": "The perceptron output is given by \u0177 = g( w\u2080 + \u03a3\u1d62\u208c\u2081\u1d50 x\u1d62 w\u1d62 ), which can also be written in vector form as \u0177 = g( w\u2080 + X\u1d40W ), where X = [x\u2081; \u2026; x\u2098] and W = [w\u2081; \u2026; w\u2098].",
       "ground_truth_locator": "MIT 6.S191 Lecture 1 recording \u2014 14:15",
       "modality": "figure",
-      "answer": "A perceptron computes its output by first forming a linear combination of its inputs and weights (adding a bias term) and then applying a non\u2011linear activation function \\(g\\). In scalar form this is written as\n\\[ \\hat{y}=g\\bigl(w_{0}+\\sum_{i=1}^{m} x_{i}w_{i}\\bigr) \\]\nwhere \\(x_i\\) are the input features, \\(w_i\\) the corresponding weights, and \\(w_{0}\\) the bias [[2\u2020L1-L4]].\n\nUsing vector notation the same operation can be expressed compactly as\n\\[ \\hat{y}=g\\bigl(w_{0}+X^{\\top}W\\bigr) \\]\nwhere \\(X=[x_{1},\\dots,x_{m}]^{\\top}\\) is the input column vector and \\(W=[w_{1},\\dots,w_{m}]^{\\top}\\) is the weight column vector [[2\u2020L1-L3],[7\u2020L1-L4]].\n\nThus the forward\u2011propagation equation for a perceptron is the activation of the bias\u2011augmented dot product of inputs and weights.",
+      "answer": "A perceptron computes its output by first forming a weighted sum of the inputs (including a bias) and then applying a non\u2011linear activation function \\(g\\). In scalar form this is written as\n\\[ \\hat{y}=g\\bigl(w_{0}+\\sum_{i=1}^{m} x_{i}w_{i}\\bigr) \\]\nwhere \\(w_{0}\\) is the bias, \\(x_{i}\\) are the input features, and \\(w_{i}\\) are the corresponding weights\u30102\u2020L1-L4\u3011.  Using vector notation, the same computation can be expressed compactly as\n\\[ \\hat{y}=g\\bigl(w_{0}+\\mathbf{X}^{\\top}\\mathbf{W}\\bigr) \\]\nwith \\(\\mathbf{X}=\\begin{bmatrix}x_{1}\\\\ \\vdots\\\\ x_{m}\\end{bmatrix}\\) and \\(\\mathbf{W}=\\begin{bmatrix}w_{1}\\\\ \\vdots\\\\ w_{m}\\end{bmatrix}\\).  This shows that the perceptron first computes the dot product \\(\\mathbf{X}^{\\top}\\mathbf{W}\\) (the linear combination) and then passes the result through the activation function to obtain the final output \\(\\hat{y}\\).",
       "grounding_status": "grounded",
       "coverage": 0.834348653723343,
       "refused": false,
       "retrieved_ground_truth": true,
-      "retrieved": [
-        "MIT 6.S191 Lecture 1 recording 14:15",
-        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning Slide 30"
+      "cited_ground_truth": true,
+      "margin": 0.04017974379768552,
+      "failure": null,
+      "category": "unspecified",
+      "retrieved_context": [
+        "MIT 6.S191 Lecture 1 recording \u2014 12:45",
+        "MIT 6.S191 Lecture 1 recording \u2014 14:15",
+        "MIT 6.S191 Lecture 1 recording \u2014 18:45",
+        "MIT 6.S191 Lecture 1 recording \u2014 20:48",
+        "MIT 6.S191 Lecture 1 recording \u2014 21:45",
+        "MIT 6.S191 Lecture 1 recording \u2014 20:15",
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 30",
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 31"
       ],
-      "latency_ms": 59625,
+      "retrieved": [
+        "MIT 6.S191 Lecture 1 recording 14:15"
+      ],
+      "latency_ms": 1731,
       "scores": {
-        "faithfulness": 0.8,
+        "faithfulness": 1.0,
         "answer_relevancy": 0.8386,
         "llm_context_precision_with_reference": 1.0,
         "context_recall": 1.0
@@ -161,20 +253,34 @@
       "reference_answer": "The book aims to help readers master the core concepts of neural networks, including modern deep learning techniques, so that after working through it they will have written code using neural networks and deep learning to solve complex pattern recognition problems and have a foundation to apply these methods to their own problems.",
       "ground_truth_locator": "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 5",
       "modality": "text",
-      "answer": "The book\u2019s main focus is to build a solid understanding of the fundamental ideas behind neural networks by combining principle\u2011oriented explanations with hands\u2011on, code\u2011driven learning. It emphasizes developing \"living code\" rather than only abstract theory so that readers can explore and extend implementations. After completing the book, readers will have grasped the fundamentals of neural networks both in theory and in practice and will be prepared to further expand their knowledge and build more advanced models.",
+      "answer": "The book\u2019s main focus is to build a solid understanding of the fundamental ideas behind neural networks by combining theory with hands\u2011on, \"living\" code examples. It emphasizes learning the basics of neural\u2011network concepts and then implementing them so that readers can explore and extend the code themselves. After completing the book, readers will have a grasp of the fundamentals of neural networks in both theory and practice and will be prepared to add further knowledge and build more advanced models.",
       "grounding_status": "grounded",
       "coverage": 0.5909851437219902,
       "refused": false,
       "retrieved_ground_truth": false,
+      "cited_ground_truth": false,
+      "margin": 0.0477631012418942,
+      "failure": null,
+      "category": "unspecified",
+      "retrieved_context": [
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 6",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 3",
+        "MIT 6.S191 Lecture 1 recording \u2014 8:27",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 7",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 5",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 7",
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 8",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 6"
+      ],
       "retrieved": [
         "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 Page 6"
       ],
-      "latency_ms": 1773,
+      "latency_ms": 56753,
       "scores": {
-        "faithfulness": 0.0,
+        "faithfulness": 0.8889,
         "answer_relevancy": 0.8733,
-        "llm_context_precision_with_reference": 0.0,
-        "context_recall": 0.0
+        "llm_context_precision_with_reference": 0.7917,
+        "context_recall": 1.0
       }
     },
     {
@@ -183,20 +289,34 @@
       "reference_answer": "The title text reads \"Why Deep Learning and Why Now?\" in white font against a solid blue background.",
       "ground_truth_locator": "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 13",
       "modality": "figure",
-      "answer": "The title text displayed on the slide is \"The Perceptron: Example.\"",
+      "answer": "The title text displayed on the slide is \u201cThe Perceptron: Example.\u201d",
       "grounding_status": "grounded",
       "coverage": 0.7080641736907802,
       "refused": false,
-      "retrieved_ground_truth": false,
+      "retrieved_ground_truth": true,
+      "cited_ground_truth": false,
+      "margin": 0.05253993061316198,
+      "failure": null,
+      "category": "unspecified",
+      "retrieved_context": [
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 13",
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 40",
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 29",
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 16",
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 1",
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 27",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 22",
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 9"
+      ],
       "retrieved": [
         "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning Slide 27"
       ],
-      "latency_ms": 1041,
+      "latency_ms": 1264,
       "scores": {
         "faithfulness": 1.0,
         "answer_relevancy": 0.9471,
-        "llm_context_precision_with_reference": 0.0,
-        "context_recall": 0.0
+        "llm_context_precision_with_reference": 1.0,
+        "context_recall": 1.0
       }
     },
     {
@@ -210,8 +330,22 @@
       "coverage": 0.7717384372069315,
       "refused": true,
       "retrieved_ground_truth": false,
+      "cited_ground_truth": false,
+      "margin": 0.05506150057515313,
+      "failure": null,
+      "category": "unspecified",
+      "retrieved_context": [
+        "MIT 6.S191 Lecture 1 recording \u2014 48:05",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 62",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 42",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 62",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 44",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 48",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 19",
+        "MIT 6.S191 Lecture 1 recording \u2014 48:45"
+      ],
       "retrieved": [],
-      "latency_ms": 59284,
+      "latency_ms": 56955,
       "scores": {}
     },
     {
@@ -220,13 +354,27 @@
       "reference_answer": null,
       "ground_truth_locator": "",
       "modality": "text",
-      "answer": "The provided course material does not contain information about best practices for hyperparameter optimization using Bayesian methods for deep neural networks.",
-      "grounding_status": "unsupported",
+      "answer": "I could not find anything in this course's material that covers that. The uploaded sources do not appear to discuss it.\n\nI can only answer from what has been ingested, so I am not going to guess. You could upload a source that covers this, or ask me about a topic the material does include.",
+      "grounding_status": "refused",
       "coverage": 0.727829055319486,
       "refused": true,
       "retrieved_ground_truth": false,
+      "cited_ground_truth": false,
+      "margin": 0.015411508685459374,
+      "failure": null,
+      "category": "unspecified",
+      "retrieved_context": [
+        "MIT 6.S191 Lecture 1 recording \u2014 41:06",
+        "MIT 6.S191 Lecture 1 recording \u2014 38:20",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 38",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 38",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 4",
+        "MIT 6.S191 Lecture 1 recording \u2014 15:05",
+        "MIT 6.S191 Lecture 1 recording \u2014 41:15",
+        "MIT 6.S191 Lecture 1 recording \u2014 31:24"
+      ],
       "retrieved": [],
-      "latency_ms": 57998,
+      "latency_ms": 212,
       "scores": {}
     },
     {
@@ -235,13 +383,27 @@
       "reference_answer": null,
       "ground_truth_locator": "",
       "modality": "text",
-      "answer": "The provided course material does not contain information about how reinforcement learning integrates with deep neural networks or about policy gradient algorithms, so I cannot explain these topics based on the excerpts given.",
-      "grounding_status": "unsupported",
+      "answer": "I could not find anything in this course's material that covers that. The uploaded sources do not appear to discuss it.\n\nI can only answer from what has been ingested, so I am not going to guess. You could upload a source that covers this, or ask me about a topic the material does include.",
+      "grounding_status": "refused",
       "coverage": 0.7419763803482056,
       "refused": true,
       "retrieved_ground_truth": false,
+      "cited_ground_truth": false,
+      "margin": 0.013046093598528818,
+      "failure": null,
+      "category": "unspecified",
+      "retrieved_context": [
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 47",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 29",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 4",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 5",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 44",
+        "MIT 6.S191 Lecture 1 recording \u2014 48:05",
+        "MIT 6.S191 Lecture 1 recording \u2014 26:37",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 30"
+      ],
       "retrieved": [],
-      "latency_ms": 59415,
+      "latency_ms": 204,
       "scores": {}
     },
     {
@@ -250,13 +412,27 @@
       "reference_answer": null,
       "ground_truth_locator": "",
       "modality": "text",
-      "answer": "The provided course material does not contain information about generative adversarial networks (GANs) or their training procedures, so I cannot give an overview based on the excerpts.",
+      "answer": "The provided course material does not contain any information about generative adversarial networks (GANs) or their training procedures. Therefore, I cannot give a detailed overview based on the excerpts you shared.",
       "grounding_status": "unsupported",
       "coverage": 0.7797964942576604,
       "refused": true,
       "retrieved_ground_truth": false,
+      "cited_ground_truth": false,
+      "margin": 0.039835377511324266,
+      "failure": null,
+      "category": "unspecified",
+      "retrieved_context": [
+        "MIT 6.S191 Lecture 1 recording \u2014 48:05",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 5",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 44",
+        "MIT 6.S191 Lecture 1 \u2014 Intro to Deep Learning \u2014 Slide 14",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 42",
+        "MIT 6.S191 Lecture 1 recording \u2014 25:56",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 34",
+        "Neural Networks and Deep Learning (Nielsen) \u2014 Chapters 1-2 \u2014 Page 10"
+      ],
       "retrieved": [],
-      "latency_ms": 56860,
+      "latency_ms": 56293,
       "scores": {}
     }
   ]

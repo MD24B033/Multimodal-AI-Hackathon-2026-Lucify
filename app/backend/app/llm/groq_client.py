@@ -19,6 +19,8 @@ from app.llm.rate_limit import CircuitBreaker, RateLimiter
 
 logger = logging.getLogger(__name__)
 
+# 413 is deliberately absent: a request too large to fit will never fit, so retrying
+# it only burns the backoff budget before failing anyway.
 RETRYABLE_STATUS = {408, 409, 429, 500, 502, 503, 504}
 _FENCE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.DOTALL)
 
