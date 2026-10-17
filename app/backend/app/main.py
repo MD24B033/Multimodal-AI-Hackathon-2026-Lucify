@@ -30,8 +30,9 @@ from app.realtime import (
     get_broker,
     install_shutdown_signals,
     resume_after_shutdown,
+    shutting_down,
 )
-from app.ingestion.jobs import worker
+from app.ingestion.jobs import queued_in_database, recover_queued_jobs, worker
 from app.tasks import queue_runner
 import app.generation_handlers  # noqa: F401  (registers task handlers)
 
@@ -50,6 +51,27 @@ def _warm_embedder() -> None:
         logger.info("Embedding model warm")
     except Exception:
         logger.warning("Could not warm the embedding model", exc_info=True)
+
+
+_RECOVERY_SECONDS = 90
+
+
+def _requeue_loop() -> None:
+    """Keeps looking for jobs no process is carrying.
+
+    Startup recovery alone is not enough: a worker thread can die on its own while the
+    process lives, and a second instance may have written the row.
+    """
+    import time
+
+    while not shutting_down():
+        time.sleep(_RECOVERY_SECONDS)
+        if shutting_down():
+            return
+        try:
+            recover_queued_jobs()
+        except Exception:
+            logger.warning("Could not sweep for orphaned ingestion", exc_info=True)
 
 
 def _release_orphaned_work() -> None:
@@ -119,6 +141,13 @@ async def lifespan(app: FastAPI):
     worker.start()
     queue_runner.start()
 
+    # The work queue cannot outlive the process, so anything the database still calls
+    # queued belongs to a process that is gone. On a hosted instance that happens for
+    # ordinary reasons - a deploy, an idle sleep, a memory limit - and without this an
+    # upload simply never starts.
+    recover_queued_jobs()
+    threading.Thread(target=_requeue_loop, name="ingestion-recovery", daemon=True).start()
+
     if settings.warm_embedder_on_start:
         threading.Thread(target=_warm_embedder, name="embedder-warmup", daemon=True).start()
 
@@ -180,6 +209,9 @@ def health():
         "database": database_ok,
         "llm_configured": bool(settings.groq_api_key),
         "ingestion_queue": worker.pending,
+        # Rows waiting in the database, which is the number that revealed a hosted
+        # instance sitting on fifteen uploads its worker had never seen.
+        "ingestion_backlog": queued_in_database(),
         "generation_queue": queue_runner.pending,
         "realtime": get_broker().name,
         "auth_required": auth_enabled(),
