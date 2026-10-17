@@ -26,6 +26,10 @@ evaluation/results/*
 !evaluation/results/
 !evaluation/results/*.json
 !evaluation/results/*.md
+# Scratch output directories from comparison runs; the promoted results live in
+# evaluation/results/ and nowhere else.
+evaluation/results_v2/
+evaluation/results/quiz_check.json
 
 # OS and editors
 .DS_Store
